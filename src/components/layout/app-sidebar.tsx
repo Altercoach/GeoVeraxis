@@ -42,25 +42,30 @@ const settingsItems = [
 ];
 
 const Logo = () => (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 100 100"
-      className="text-primary"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M50 0L100 25V75L50 100L0 75V25L50 0Z" fill="currentColor" />
-      <path
-        d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
-        className="fill-background"
-      />
-      <path
-        d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
+  <svg
+    width="32"
+    height="32"
+    viewBox="0 0 100 100"
+    className="text-primary"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M50 0L100 25V75L50 100L0 75V25L50 0Z"
+      className="text-sidebar-primary"
+      fill="currentColor"
+    />
+    <path
+      d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
+      className="fill-sidebar"
+    />
+    <path
+      d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
+      className="text-sidebar-primary"
+      fill="currentColor"
+    />
+  </svg>
+);
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -69,8 +74,8 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2">
-            <Logo />
-            <span className="font-semibold text-lg">GeoLegal Nexus</span>
+          <Logo />
+          <span className="font-semibold text-lg">GeoLegal Nexus</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
