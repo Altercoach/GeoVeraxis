@@ -7,7 +7,7 @@ export default function ChatbotPage() {
         <h1 className="text-3xl font-bold tracking-tight">AI Chatbot Support</h1>
       </div>
       <p className="text-muted-foreground max-w-2xl">
-        Ask our AI assistant anything about the GeoLegal Nexus platform, legal processes, or your account.
+        Ask our AI assistant anything about the GeoVeraxis platform, legal processes, or your account.
       </p>
       <div className="flex-1 min-h-0">
         <Chatbot />
