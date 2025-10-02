@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CheckCircle, ShieldCheck, Zap } from "lucide-react";
+import { CheckCircle, ShieldCheck, Zap, Bot, Database, GitBranch } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -9,17 +9,17 @@ const features = [
   {
     icon: <Zap className="w-8 h-8 text-primary" />,
     title: "Verificación Potenciada por IA",
-    description: "Analice documentos legales, valide datos y detecte fraudes con nuestra inteligencia artificial de vanguardia.",
+    description: "Analice documentos, valide datos y detecte fraudes con nuestra IA de vanguardia.",
   },
   {
-    icon: <ShieldCheck className="w-8 h-8 text-primary" />,
+    icon: <ShieldCheck className="w-8 h-8 text-secondary" />,
     title: "Seguridad con Blockchain",
-    description: "Garantice la inmutabilidad y transparencia de cada transacción y registro de propiedad con tecnología blockchain.",
+    description: "Garantice la inmutabilidad de cada transacción con tecnología blockchain.",
   },
   {
-    icon: <CheckCircle className="w-8 h-8 text-primary" />,
+    icon: <GitBranch className="w-8 h-8 text-accent" />,
     title: "Flujos de Trabajo Automatizados",
-    description: "Desde la aprobación de hipotecas hasta el registro de propiedades, automatice procesos complejos para una eficiencia sin precedentes.",
+    description: "Automatice procesos complejos para una eficiencia sin precedentes.",
   },
 ];
 
@@ -28,13 +28,13 @@ const testimonials = [
     name: "Carlos Rodriguez",
     role: "Agente Inmobiliario, RE/MAX",
     avatar: "https://randomuser.me/api/portraits/men/75.jpg",
-    text: "GeoLegal Nexus ha transformado nuestra forma de trabajar. La verificación de documentos con IA nos ahorra días de trabajo en cada transacción.",
+    text: "GeoVeraxis ha transformado nuestra forma de trabajar. La verificación de documentos con IA nos ahorra días de trabajo.",
   },
   {
     name: "Ana Fernández",
     role: "Oficial de Crédito, BBVA",
     avatar: "https://randomuser.me/api/portraits/women/68.jpg",
-    text: "La seguridad que aporta la blockchain para el registro de hipotecas es inigualable. Ahora tenemos total confianza en la integridad de nuestros datos.",
+    text: "La seguridad que aporta la blockchain es inigualable. Ahora tenemos total confianza en la integridad de nuestros datos.",
   },
 ];
 
@@ -49,8 +49,7 @@ const Logo = () => (
     >
       <path
         d="M50 0L100 25V75L50 100L0 75V25L50 0Z"
-        className="text-primary"
-        fill="currentColor"
+        fill="url(#logo-gradient)"
       />
       <path
         d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
@@ -58,9 +57,14 @@ const Logo = () => (
       />
       <path
         d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
-        className="text-primary"
-        fill="currentColor"
+        fill="url(#logo-gradient)"
       />
+      <defs>
+        <linearGradient id="logo-gradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop stopColor="hsl(var(--primary))"/>
+            <stop offset="1" stopColor="hsl(var(--secondary))"/>
+        </linearGradient>
+      </defs>
     </svg>
   );
 
@@ -71,16 +75,16 @@ export default function LandingPage() {
         <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
           <Link href="/" className="flex items-center gap-3">
             <Logo />
-            <span className="text-xl font-bold">GeoLegal Nexus</span>
+            <span className="text-xl font-bold font-jakarta">GeoVeraxis</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="#features" className="text-sm font-medium hover:text-primary">
+            <Link href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary">
               Características
             </Link>
-            <Link href="#testimonials" className="text-sm font-medium hover:text-primary">
+            <Link href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-primary">
               Testimonios
             </Link>
-            <Link href="#contact" className="text-sm font-medium hover:text-primary">
+            <Link href="#contact" className="text-sm font-medium text-muted-foreground hover:text-primary">
               Contacto
             </Link>
           </nav>
@@ -99,20 +103,20 @@ export default function LandingPage() {
                 loop 
                 muted 
                 playsInline
-                className="absolute top-0 left-0 w-full h-full object-cover -z-10 brightness-50"
+                className="absolute top-0 left-0 w-full h-full object-cover -z-10 brightness-[.3]"
             />
           <div className="container px-4 md:px-6">
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter text-white drop-shadow-md">
-              La Intersección de la Precisión Geoespacial y la Certeza Legal
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter text-white drop-shadow-md font-jakarta">
+              La Intersección de Precisión Geoespacial y Certeza Legal
             </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-200 drop-shadow-sm">
-              Nuestra plataforma con IA y Blockchain redefine la gestión catastral, la validación de documentos y las transacciones inmobiliarias.
+            <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-300 drop-shadow-sm">
+              Nuestra plataforma con IA y Blockchain redefine la gestión catastral, la validación de documentos y las transacciones inmobiliarias, creando un ecosistema de confianza y eficiencia.
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Button size="lg" asChild>
                 <Link href="/login">Empieza Ahora</Link>
               </Button>
-              <Button size="lg" variant="outline" className="bg-white/20 text-white border-white/50 hover:bg-white/30">
+              <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
                 Solicitar una Demo
               </Button>
             </div>
@@ -120,46 +124,42 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-12 md:py-24 bg-card">
+        <section id="features" className="py-16 md:py-28 bg-background">
           <div className="container px-4 md:px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Una Plataforma, Infinitas Soluciones</h2>
-              <p className="mt-2 text-muted-foreground max-w-xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold font-jakarta">Una Plataforma, Infinitas Soluciones</h2>
+              <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
                 Integramos las tecnologías más avanzadas para ofrecer una solución completa para el sector inmobiliario y legal.
               </p>
             </div>
             <div className="grid gap-8 md:grid-cols-3">
               {features.map((feature, index) => (
-                <Card key={index} className="text-center">
-                  <CardHeader>
-                    <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
+                <div key={index} className="text-center">
+                    <div className="mx-auto bg-muted p-4 rounded-full w-fit">
                       {feature.icon}
                     </div>
-                    <CardTitle className="mt-4">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
+                    <h3 className="mt-6 text-xl font-bold font-jakarta">{feature.title}</h3>
+                    <p className="mt-2 text-muted-foreground">{feature.description}</p>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-12 md:py-24">
+        <section id="testimonials" className="py-16 md:py-28 bg-muted/50">
           <div className="container px-4 md:px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Con la Confianza de Líderes de la Industria</h2>
-              <p className="mt-2 text-muted-foreground">Vea lo que nuestros clientes dicen sobre GeoLegal Nexus.</p>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold font-jakarta">Con la Confianza de Líderes de la Industria</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Vea lo que nuestros clientes dicen sobre GeoVeraxis.</p>
             </div>
-            <div className="grid gap-8 md:grid-cols-2">
+            <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
               {testimonials.map((testimonial, index) => (
-                <Card key={index}>
+                <Card key={index} className="bg-card">
                   <CardContent className="pt-6">
-                    <blockquote className="text-lg italic">"{testimonial.text}"</blockquote>
+                    <blockquote className="text-lg italic text-foreground">"{testimonial.text}"</blockquote>
                   </CardContent>
-                  <div className="p-6 flex items-center gap-4">
+                  <div className="p-6 flex items-center gap-4 border-t border-border mt-4">
                     <Avatar>
                       <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
                       <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
@@ -176,9 +176,9 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer id="contact" className="bg-card border-t">
+      <footer id="contact" className="bg-card border-t border-border">
         <div className="container mx-auto py-8 px-4 md:px-6 text-center text-muted-foreground text-sm">
-          <p>&copy; {new Date().getFullYear()} GeoLegal Nexus. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} GeoVeraxis. Todos los derechos reservados.</p>
           <div className="mt-4 flex justify-center gap-4">
              <Link href="#" className="hover:text-primary">Política de Privacidad</Link>
              <Link href="#" className="hover:text-primary">Términos de Servicio</Link>

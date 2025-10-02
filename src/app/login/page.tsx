@@ -32,8 +32,7 @@ const Logo = () => (
     >
       <path
         d="M50 0L100 25V75L50 100L0 75V25L50 0Z"
-        className="text-primary"
-        fill="currentColor"
+        fill="url(#logo-gradient)"
       />
       <path
         d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
@@ -41,24 +40,30 @@ const Logo = () => (
       />
       <path
         d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
-        className="text-primary"
-        fill="currentColor"
+        fill="url(#logo-gradient)"
       />
+      <defs>
+        <linearGradient id="logo-gradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop stopColor="hsl(var(--primary))"/>
+            <stop offset="1" stopColor="hsl(var(--secondary))"/>
+        </linearGradient>
+      </defs>
     </svg>
 );
 
 export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="w-full max-w-md mx-auto">
+      <div className="w-full max-w-md mx-auto p-4">
         <Link href="/" className="flex items-center justify-center mb-8 gap-3">
           <Logo />
+           <span className="text-2xl font-bold font-jakarta text-foreground">GeoVeraxis</span>
         </Link>
         <Card>
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl">Bienvenido de Nuevo</CardTitle>
+            <CardTitle className="text-2xl font-jakarta">Bienvenido de Nuevo</CardTitle>
             <CardDescription>
-              Inicia sesión para acceder a tu panel de GeoLegal Nexus.
+              Inicia sesión para acceder a tu panel de GeoVeraxis.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -85,7 +90,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">Contraseña</Label>
                 <Link
                   href="#"
-                  className="ml-auto inline-block text-sm underline"
+                  className="ml-auto inline-block text-sm text-primary hover:underline"
                 >
                   ¿Olvidaste tu contraseña?
                 </Link>
@@ -98,7 +103,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter className="text-center text-sm">
             ¿No tienes una cuenta?{" "}
-            <Link href="#" className="underline ml-1">
+            <Link href="#" className="underline ml-1 text-primary">
               Regístrate
             </Link>
           </CardFooter>

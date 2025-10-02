@@ -42,29 +42,33 @@ const settingsItems = [
 ];
 
 const Logo = () => (
-  <svg
-    width="32"
-    height="32"
-    viewBox="0 0 100 100"
-    className="text-primary"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M50 0L100 25V75L50 100L0 75V25L50 0Z"
-      className="text-sidebar-primary"
-      fill="currentColor"
-    />
-    <path
-      d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
-      className="fill-sidebar"
-    />
-    <path
-      d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
-      className="text-sidebar-primary"
-      fill="currentColor"
-    />
-  </svg>
+    <svg
+      width="32"
+      height="32"
+      viewBox="0 0 100 100"
+      className="text-primary"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M50 0L100 25V75L50 100L0 75V25L50 0Z"
+        fill="url(#logo-gradient-sidebar)"
+      />
+      <path
+        d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
+        className="fill-sidebar"
+      />
+      <path
+        d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
+        fill="url(#logo-gradient-sidebar)"
+      />
+       <defs>
+        <linearGradient id="logo-gradient-sidebar" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop stopColor="hsl(var(--sidebar-primary))"/>
+            <stop offset="1" stopColor="hsl(var(--secondary))"/>
+        </linearGradient>
+      </defs>
+    </svg>
 );
 
 export function AppSidebar() {
@@ -75,7 +79,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <Link href="/" className="flex items-center gap-2">
           <Logo />
-          <span className="font-semibold text-lg">GeoLegal Nexus</span>
+          <span className="font-semibold text-lg font-jakarta">GeoVeraxis</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
