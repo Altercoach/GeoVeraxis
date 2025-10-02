@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CheckCircle, ShieldCheck, Zap } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const features = [
   {
@@ -37,31 +38,31 @@ const testimonials = [
   },
 ];
 
-
 const Logo = () => (
-  <svg
-    width="48"
-    height="48"
-    viewBox="0 0 100 100"
-    className="text-primary"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M50 0L100 25V75L50 100L0 75V25L50 0Z"
-      fill="currentColor"
-    />
-    <path
-      d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
-      className="fill-background"
-    />
-    <path
-      d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 100 100"
+      className="text-primary"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M50 0L100 25V75L50 100L0 75V25L50 0Z"
+        className="text-primary"
+        fill="currentColor"
+      />
+      <path
+        d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
+        className="fill-background"
+      />
+      <path
+        d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
+        className="text-primary"
+        fill="currentColor"
+      />
+    </svg>
+  );
 
 export default function LandingPage() {
   return (
@@ -84,7 +85,7 @@ export default function LandingPage() {
             </Link>
           </nav>
           <Button asChild>
-            <Link href="/dashboard">Acceder a la Plataforma</Link>
+            <Link href="/login">Acceder a la Plataforma</Link>
           </Button>
         </div>
       </header>
@@ -109,7 +110,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Button size="lg" asChild>
-                <Link href="/dashboard">Empieza Ahora</Link>
+                <Link href="/login">Empieza Ahora</Link>
               </Button>
               <Button size="lg" variant="outline" className="bg-white/20 text-white border-white/50 hover:bg-white/30">
                 Solicitar una Demo
