@@ -1,4 +1,3 @@
-// Provide AI Chatbot Support
 'use server';
 
 /**

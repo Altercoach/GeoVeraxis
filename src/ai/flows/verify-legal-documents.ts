@@ -1,4 +1,3 @@
-// VerifyLegalDocuments.ts
 'use server';
 
 /**

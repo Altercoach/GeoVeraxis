@@ -16,14 +16,12 @@ import {
   Languages,
   Users,
   Bot,
-  CircleDot,
+  GitBranch,
   Database,
   Settings,
-  Shield,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Button } from "../ui/button";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -35,7 +33,7 @@ const navItems = [
   { href: "/dashboard/translate", icon: Languages, label: "AI Translation" },
   { href: "/dashboard/chatbot", icon: Bot, label: "AI Chatbot" },
   { href: "/dashboard/users", icon: Users, label: "User Management" },
-  { href: "/dashboard/workflows", icon: CircleDot, label: "Workflows" },
+  { href: "/dashboard/workflows", icon: GitBranch, label: "Workflows" },
   { href: "/dashboard/blockchain", icon: Database, label: "Blockchain" },
 ];
 

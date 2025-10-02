@@ -11,7 +11,7 @@ import {
   TranslatePlatformContentOutput,
 } from "@/ai/flows/translate-platform-content";
 import {
-  verifyLegalDocument,
+  verifyLegalDocument as verifyLegalDocumentFlow,
   VerifyLegalDocumentInput,
   VerifyLegalDocumentOutput,
 } from "@/ai/flows/verify-legal-documents";
@@ -28,11 +28,11 @@ export async function handleTranslation(
   }
 }
 
-export async function verifyLegalDocumentAction(
+export async function verifyLegalDocument(
   input: VerifyLegalDocumentInput
 ): Promise<VerifyLegalDocumentOutput> {
   try {
-    const result = await verifyLegalDocument(input);
+    const result = await verifyLegalDocumentFlow(input);
     return result;
   } catch (error) {
     console.error("Document verification error:", error);

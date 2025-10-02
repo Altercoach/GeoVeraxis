@@ -238,7 +238,7 @@ export function DocumentVerifier() {
                         {result.fraudIndicators.map((indicator, i) => <li key={i}>{indicator}</li>)}
                     </ul>
                   ) : "No fraud indicators detected."}
-                </_AlertDescription>
+                </AlertDescription>
               </Alert>
             </div>
           )}
