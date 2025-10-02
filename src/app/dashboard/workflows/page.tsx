@@ -44,7 +44,7 @@ export default function WorkflowsPage() {
           Automated Workflows
         </h1>
         <p className="text-muted-foreground max-w-2xl">
-          Visualize the AI-driven automated workflows that power the GeoLegal Nexus platform, ensuring efficiency and accuracy.
+          Visualize the AI-driven automated workflows that power the GeoVeraxis platform, ensuring efficiency and accuracy.
         </p>
       </div>
       <div className="grid gap-8 md:grid-cols-2">
