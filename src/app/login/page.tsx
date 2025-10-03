@@ -17,6 +17,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getRedirectResult } from "firebase/auth";
+import { useFirebase } from "@/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
@@ -60,11 +63,48 @@ const Logo = () => (
 
 export default function LoginPage() {
   const { signInWithGoogle, signInWithEmail, user, loading } = useAuthHook();
+  const { auth, firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
+
+  useEffect(() => {
+    // This effect runs once on component mount to handle the redirect result
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result) {
+          // User successfully signed in.
+          const user = result.user;
+          const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
+          const lastName = lastNameParts.join(' ');
+          
+          // Ensure user document is created in Firestore.
+          await setDoc(doc(firestore, "users", user.uid), {
+              id: user.uid,
+              firstName: firstName || 'User',
+              lastName: lastName || '',
+              email: user.email,
+              role: "Client" // Default role
+          }, { merge: true });
+          
+          // The onAuthStateChanged listener will handle the redirect to dashboard
+        }
+      })
+      .catch((error) => {
+        console.error("Error getting redirect result:", error);
+        toast({
+            variant: "destructive",
+            title: "Error de inicio de sesión",
+            description: "No se pudo completar el inicio de sesión con Google.",
+        });
+      })
+      .finally(() => {
+        setIsProcessingRedirect(false);
+      });
+  }, [auth, firestore, toast, router]);
 
   useEffect(() => {
     if (user) {
@@ -73,6 +113,7 @@ export default function LoginPage() {
   }, [user, router]);
 
   const handleGoogleSignIn = async () => {
+    setIsSubmitting(true);
     try {
       await signInWithGoogle();
     } catch (error) {
@@ -82,6 +123,7 @@ export default function LoginPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
+      setIsSubmitting(false);
     }
   };
 
@@ -102,9 +144,9 @@ export default function LoginPage() {
     }
   };
 
-  const isLoading = loading || isSubmitting;
+  const isLoading = loading || isSubmitting || isProcessingRedirect;
   
-  if (loading && !user) {
+  if (isLoading || user) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -131,7 +173,7 @@ export default function LoginPage() {
           <form onSubmit={handleEmailSignIn}>
             <CardContent className="grid gap-4">
               <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                <GoogleIcon className="mr-2 h-4 w-4" />
                 Iniciar sesión con Google
               </Button>
               <div className="relative">

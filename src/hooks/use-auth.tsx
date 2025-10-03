@@ -37,64 +37,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     });
 
-    // Handle the redirect result from Google
-    getRedirectResult(auth).then(async (result) => {
-      if (result) {
-        setLoading(true);
-        const user = result.user;
-        const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
-        const lastName = lastNameParts.join(' ');
-        
-        // Ensure user document is created in Firestore.
-        // Using merge: true is safe and will create or update the document.
-        await setDoc(doc(firestore, "users", user.uid), {
-            id: user.uid,
-            firstName: firstName || 'User',
-            lastName: lastName || '',
-            email: user.email,
-            role: "Client" // Default role
-        }, { merge: true });
-
-        setUser(user);
-        // Loading will be set to false by the onAuthStateChanged listener
-      }
-    }).catch(error => {
-        console.error("Error getting redirect result:", error);
-        setLoading(false); // Stop loading on error
-    });
-
     return () => unsubscribe();
-  }, [auth, firestore]);
+  }, [auth]);
 
   const signInWithGoogle = async () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
     await signInWithRedirect(auth, provider);
+    // The user will be redirected, and the result will be handled
+    // by getRedirectResult on the login page after the redirect.
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
     setLoading(true);
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    await updateProfile(user, { displayName });
-    
-    const [firstName, ...lastNameParts] = displayName.split(' ');
-    const lastName = lastNameParts.join(' ');
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await updateProfile(user, { displayName });
+        
+        const [firstName, ...lastNameParts] = displayName.split(' ');
+        const lastName = lastNameParts.join(' ');
 
-    await setDoc(doc(firestore, "users", user.uid), {
-        id: user.uid,
-        firstName: firstName,
-        lastName: lastName,
-        email: user.email,
-        role: "Client"
-    });
-    setLoading(false);
+        await setDoc(doc(firestore, "users", user.uid), {
+            id: user.uid,
+            firstName: firstName,
+            lastName: lastName,
+            email: user.email,
+            role: "Client"
+        });
+    } catch (error) {
+        console.error("Error signing up with email:", error);
+        throw error;
+    } finally {
+        setLoading(false);
+    }
   };
 
   const signInWithEmail = async (email: string, password: string) => {
     setLoading(true);
-    await signInWithEmailAndPassword(auth, email, password);
-    setLoading(false);
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        console.error("Error signing in with email:", error);
+        throw error;
+    } finally {
+        setLoading(false);
+    }
   };
 
   const signOut = async () => {

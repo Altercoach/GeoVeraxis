@@ -8,40 +8,40 @@ const AUTH_COOKIE_NAME = '__session'; // A more generic name is better
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // List of routes that do not require authentication.
-  const publicPaths = ['/login', '/register', '/pricing', '/payment'];
+  // List of routes that are considered "public" and should not be accessed by authenticated users
+  const authPaths = ['/login', '/register', '/pricing', '/payment'];
 
   // Get the authentication token from cookies.
   const authToken = request.cookies.get(AUTH_COOKIE_NAME);
 
-  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  const isAuthPath = authPaths.some(path => pathname.startsWith(path));
   const isRootPath = pathname === '/';
 
-  // If the user is authenticated and tries to access a public path like login/register/pricing/payment,
+  // If the user is authenticated and tries to access a login/register/pricing/payment page,
   // redirect them to the dashboard.
-  if (authToken && isPublicPath) {
+  if (authToken && isAuthPath) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Allow access to the landing page without authentication
+  // Allow access to the landing page (root) without authentication
   if (isRootPath) {
     return NextResponse.next();
   }
-
-  // Allow access to public routes if there is no token
-  if (isPublicPath && !authToken) {
-    return NextResponse.next();
+  
+  // Allow access to auth-related routes if there is no token
+  if (isAuthPath && !authToken) {
+      return NextResponse.next();
   }
 
   // If the user tries to access a protected route (any route that is not public or root)
   // and there is no token, redirect them to the login page.
-  if (!authToken && !isPublicPath && !isRootPath) {
+  if (!authToken && !isAuthPath && !isRootPath) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', pathname); // Optional: to redirect the user back after login.
     return NextResponse.redirect(loginUrl);
   }
 
-  // For all other routes, allow access.
+  // For all other cases (e.g., authenticated user accessing a protected route), allow access.
   return NextResponse.next();
 }
 

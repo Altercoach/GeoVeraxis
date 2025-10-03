@@ -93,6 +93,7 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignIn = async () => {
+    setIsSubmitting(true);
     try {
       await signInWithGoogle();
     } catch (error) {
@@ -102,12 +103,13 @@ export default function RegisterPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
+      setIsSubmitting(false);
     }
   };
 
   const isLoading = loading || isSubmitting;
 
-  if (loading && !user) {
+  if (isLoading || user) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
