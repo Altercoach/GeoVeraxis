@@ -10,30 +10,35 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Lista de rutas que no requieren autenticación.
-  const publicPaths = ['/login', '/register', '/pricing', '/'];
+  const publicPaths = ['/login', '/register', '/pricing', '/payment'];
 
   // Obtener el token de autenticación de las cookies.
   const authToken = request.cookies.get(AUTH_COOKIE_NAME);
 
-  const isPublicPath = publicPaths.some(path => {
-    if (path === '/') return pathname === '/';
-    return pathname.startsWith(path);
-  });
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  const isRootPath = pathname === '/';
 
   // Si el usuario está autenticado y trata de acceder a una ruta pública como login/register,
   // redirigirlo al dashboard.
-  if (authToken && (pathname.startsWith('/login') || pathname.startsWith('/register'))) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (authToken && (isPublicPath || isRootPath)) {
+    if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
   }
 
-  // Si la ruta es pública y no hay token, permitir el acceso.
-  if (isPublicPath || pathname === '/') {
+  // Permitir el acceso a la página de inicio (landing page) sin autenticación
+  if (isRootPath) {
     return NextResponse.next();
   }
 
-  // Si el usuario intenta acceder a una ruta protegida (cualquiera que no sea pública)
+  // Permitir el acceso a las rutas públicas si no hay token
+  if (isPublicPath && !authToken) {
+    return NextResponse.next();
+  }
+
+  // Si el usuario intenta acceder a una ruta protegida (cualquiera que no sea pública o raíz)
   // y no hay token, redirigirlo a la página de login.
-  if (!authToken && !isPublicPath) {
+  if (!authToken && !isPublicPath && !isRootPath) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', pathname); // Opcional: para redirigir al usuario de vuelta después del login.
     return NextResponse.redirect(loginUrl);
