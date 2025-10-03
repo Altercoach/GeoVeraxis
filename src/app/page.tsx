@@ -81,6 +81,9 @@ export default function LandingPage() {
             <Link href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary">
               Características
             </Link>
+            <Link href="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary">
+              Precios
+            </Link>
             <Link href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-primary">
               Testimonios
             </Link>
@@ -88,9 +91,14 @@ export default function LandingPage() {
               Contacto
             </Link>
           </nav>
-          <Button asChild>
-            <Link href="/login">Acceder a la Plataforma</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link href="/login">Acceder</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/register">Registrarse</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -114,7 +122,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Button size="lg" asChild>
-                <Link href="/login">Empieza Ahora</Link>
+                <Link href="/register">Empieza Ahora</Link>
               </Button>
               <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
                 Solicitar una Demo

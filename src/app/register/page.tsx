@@ -51,7 +51,7 @@ const Logo = () => (
     </svg>
 );
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md mx-auto p-4">
@@ -63,24 +63,20 @@ export default function LoginPage() {
         </div>
         <Card>
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-jakarta">Bienvenido de Nuevo</CardTitle>
+            <CardTitle className="text-2xl font-jakarta">Crea una Cuenta</CardTitle>
             <CardDescription>
-              Inicia sesión para acceder a tu panel de GeoVeraxis.
+              Únete a GeoVeraxis para empezar a transformar tus procesos.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <Button variant="outline" className="w-full">
-              <GoogleIcon className="mr-2 h-4 w-4" />
-              Iniciar sesión con Google
-            </Button>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+             <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="first-name">Nombre</Label>
+                <Input id="first-name" placeholder="Max" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">
-                  O continuar con
-                </span>
+              <div className="grid gap-2">
+                <Label htmlFor="last-name">Apellidos</Label>
+                <Input id="last-name" placeholder="Robinson" />
               </div>
             </div>
             <div className="grid gap-2">
@@ -88,33 +84,32 @@ export default function LoginPage() {
               <Input id="email" type="email" placeholder="m@example.com" />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
                 <Label htmlFor="password">Contraseña</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm text-primary hover:underline"
-                >
-                  ¿Olvidaste tu contraseña?
-                </Link>
-              </div>
-              <Input id="password" type="password" />
+                <Input id="password" type="password" />
             </div>
             <Button type="submit" className="w-full">
-              Iniciar Sesión
+              Crear Cuenta
+            </Button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  O
+                </span>
+              </div>
+            </div>
+            <Button variant="outline" className="w-full">
+              <GoogleIcon className="mr-2 h-4 w-4" />
+              Registrarse con Google
             </Button>
           </CardContent>
-          <CardFooter className="flex flex-col gap-2 text-center text-sm">
-            <div>
-                ¿No tienes una cuenta?{" "}
-                <Link href="/register" className="underline ml-1 text-primary">
-                Regístrate
-                </Link>
-            </div>
-            <div>
-                <Link href="/pricing" className="text-sm text-primary hover:underline">
-                    Ver planes de precios
-                </Link>
-            </div>
+          <CardFooter className="text-center text-sm">
+            ¿Ya tienes una cuenta?{" "}
+            <Link href="/login" className="underline ml-1 text-primary">
+              Iniciar Sesión
+            </Link>
           </CardFooter>
         </Card>
       </div>
