@@ -37,14 +37,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     });
 
+    // Handle the redirect result from Google
     getRedirectResult(auth).then(async (result) => {
       if (result) {
         setLoading(true);
         const user = result.user;
-        // Create user document in Firestore for Google Sign-In
         const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
         const lastName = lastNameParts.join(' ');
         
+        // Ensure user document is created in Firestore.
+        // Using merge: true is safe and will create or update the document.
         await setDoc(doc(firestore, "users", user.uid), {
             id: user.uid,
             firstName: firstName || 'User',
@@ -52,12 +54,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             email: user.email,
             role: "Client" // Default role
         }, { merge: true });
+
         setUser(user);
-        setLoading(false);
+        // Loading will be set to false by the onAuthStateChanged listener
       }
     }).catch(error => {
         console.error("Error getting redirect result:", error);
-        setLoading(false);
+        setLoading(false); // Stop loading on error
     });
 
     return () => unsubscribe();
@@ -70,6 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+    setLoading(true);
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     await updateProfile(user, { displayName });
@@ -77,7 +81,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [firstName, ...lastNameParts] = displayName.split(' ');
     const lastName = lastNameParts.join(' ');
 
-    // Create user document in Firestore for Email Sign-Up
     await setDoc(doc(firestore, "users", user.uid), {
         id: user.uid,
         firstName: firstName,
@@ -85,11 +88,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: user.email,
         role: "Client"
     });
-    // onAuthStateChanged will handle setting the user state
+    setLoading(false);
   };
 
   const signInWithEmail = async (email: string, password: string) => {
+    setLoading(true);
     await signInWithEmailAndPassword(auth, email, password);
+    setLoading(false);
   };
 
   const signOut = async () => {

@@ -80,7 +80,6 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       await signUpWithEmail(email, password, `${firstName} ${lastName}`);
-      // Let the useEffect handle redirection
     } catch (error) {
       toast({
         variant: "destructive",
@@ -94,10 +93,8 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    setIsSubmitting(true);
     try {
       await signInWithGoogle();
-       // The redirect flow is handled by the useAuthHook
     } catch (error) {
       toast({
         variant: "destructive",
@@ -105,13 +102,12 @@ export default function RegisterPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
-      setIsSubmitting(false);
     }
   };
 
   const isLoading = loading || isSubmitting;
 
-  if (loading && !isSubmitting) {
+  if (loading && !user) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
