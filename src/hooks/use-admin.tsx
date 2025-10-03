@@ -26,7 +26,8 @@ type AdminContextType = {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
-  const [viewAs, setViewAs] = useState('Superadmin');
+  // NOTE: This will be replaced with the actual user role from Firestore.
+  const [viewAs, setViewAs] = useState('Superadmin'); 
 
   const contextValue = useMemo(() => ({
     viewAs,
