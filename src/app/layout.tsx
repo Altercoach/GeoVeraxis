@@ -1,20 +1,17 @@
-import type {Metadata} from 'next';
-import './globals.css';
-import { Toaster } from "@/components/ui/toaster";
-import { cn } from '@/lib/utils';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
-import { ThemeProvider } from 'next-themes';
-import { AdminProvider } from '@/hooks/use-admin';
-import { AuthProvider } from '@/hooks/use-auth';
-import { FirebaseProvider } from '@/firebase/provider';
-import { FirebaseClientProvider } from '@/firebase/client-provider';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta' });
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { FirebaseProvider } from "@/lib/firebase/provider";
+import { app, auth, db } from "@/lib/firebase/config";
+import { Toaster } from "@/components/ui/toaster";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'GeoVeraxis',
-  description: 'Integral platform for cadastral management and legal validation with AI-first capabilities.',
+  title: "GeoVeraxis",
+  description: "Gestión de documentos notariales geoespaciales con IA",
 };
 
 export default function RootLayout({
@@ -24,19 +21,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.variable, jakarta.variable)}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <FirebaseProvider>
-            <FirebaseClientProvider>
-              <AuthProvider>
-                <AdminProvider>
-                  {children}
-                </AdminProvider>
-              </AuthProvider>
-            </FirebaseClientProvider>
+      <body className={inter.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <FirebaseProvider firebaseApp={app} firestore={db} auth={auth}>
+            {children}
           </FirebaseProvider>
+          <Toaster />
         </ThemeProvider>
-        <Toaster />
       </body>
     </html>
   );

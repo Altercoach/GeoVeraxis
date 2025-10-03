@@ -1,5 +1,29 @@
 "use client";
 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
+export function DocumentVerifier() {
+  return (
+    <div className="grid gap-8 md:grid-cols-1">
+      <Card>
+        <CardHeader>
+          <CardTitle>Verify Document</CardTitle>
+          <CardDescription>
+            Upload a document and provide details for AI analysis.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center">
+          <p className="text-muted-foreground">The document verifier is temporarily disabled.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+
+/*
+"use client";
+
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -226,7 +250,7 @@ export function DocumentVerifier() {
                 <AlertTitle>Completeness</AlertTitle>
                 <AlertDescription>
                   {result.completeness.isComplete ? "Document contains all expected data." : `Missing data: ${result.completeness.missingData.join(", ")}`}
-                </AlertDescription>
+                </Gpt-response>
               </Alert>
               
               <Alert variant={result.fraudIndicators.length > 0 ? "destructive" : "default"}>
@@ -247,3 +271,4 @@ export function DocumentVerifier() {
     </div>
   );
 }
+*/

@@ -1,3 +1,5 @@
+"use client";
+
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { DollarSign, Users, FileText, Activity } from "lucide-react";
 import { AdminClientTable } from "@/components/admin/client-table";

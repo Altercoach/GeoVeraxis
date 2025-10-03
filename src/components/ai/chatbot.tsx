@@ -1,5 +1,26 @@
 "use client";
 
+import { Bot } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export function Chatbot() {
+  return (
+    <Card className="h-full flex flex-col">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+            <Bot/> AI Assistant
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 flex items-center justify-center">
+          <p className="text-muted-foreground">The chatbot is temporarily disabled.</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+/*
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -164,3 +185,4 @@ export function Chatbot() {
     </Card>
   );
 }
+*/

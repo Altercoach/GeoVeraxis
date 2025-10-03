@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
+    // This is a comment to force a reload of the tsconfig.json
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,

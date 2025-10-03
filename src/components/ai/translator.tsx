@@ -1,5 +1,26 @@
 "use client";
 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
+export function Translator() {
+  return (
+    <Card>
+       <CardHeader>
+        <CardTitle>Translate Content</CardTitle>
+        <CardDescription>
+          Enter text, or upload a document to translate it using our legal-focused AI.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex items-center justify-center">
+          <p className="text-muted-foreground">The translator is temporarily disabled.</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+/*
+"use client";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -266,3 +287,4 @@ export function Translator() {
     </Card>
   );
 }
+*/

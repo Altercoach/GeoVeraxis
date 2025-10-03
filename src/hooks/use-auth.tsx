@@ -4,7 +4,7 @@ import { createContext, useContext, ReactNode } from 'react';
 import { 
   User,
   GoogleAuthProvider,
-  signInWithRedirect,
+  signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -28,8 +28,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { auth, firestore, user, isUserLoading } = useFirebase();
 
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithRedirect(auth, provider);
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+
+      const displayName = user.displayName || '';
+      const [firstName, ...lastNameParts] = displayName.split(' ');
+      const lastName = lastNameParts.join(' ');
+
+      await setDoc(doc(firestore, "users", user.uid), {
+          id: user.uid,
+          firstName: firstName,
+          lastName: lastName,
+          email: user.email,
+          role: "Client" // Reverted to Client
+      }, { merge: true });
+    } catch (error) {
+        console.error("Error signing in with Google:", error);
+        throw error;
+    }
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
@@ -46,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             firstName: firstName,
             lastName: lastName,
             email: user.email,
-            role: "Client"
+            role: "Client" // Reverted to Client
         }, { merge: true });
     } catch (error) {
         console.error("Error signing up with email:", error);

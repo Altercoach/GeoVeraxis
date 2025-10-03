@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import * as React from "react";
 import {
@@ -12,6 +12,12 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  Table as TanstackTable, 
+  Row,
+  Column,
+  Header,
+  Cell,
+  HeaderGroup
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal, PlusCircle } from "lucide-react";
 
@@ -106,14 +112,14 @@ export const columns: ColumnDef<Client>[] = [
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value: boolean) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
         aria-label="Select row"
       />
     ),
@@ -144,7 +150,7 @@ export const columns: ColumnDef<Client>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <Badge variant={statusVariant[row.getValue("status")]}>{row.getValue("status")}</Badge>
+        <Badge variant={statusVariant[row.getValue("status") as Client['status']]}>{row.getValue("status") as string}</Badge>
     ),
   },
   {
@@ -220,7 +226,7 @@ export function AdminClientTable() {
             <Input
               placeholder="Filter by client name..."
               value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-              onChange={(event) =>
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                 table.getColumn("name")?.setFilterValue(event.target.value)
               }
               className="max-w-sm"
@@ -239,14 +245,14 @@ export function AdminClientTable() {
                 <DropdownMenuContent align="end">
                     {table
                     .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => {
+                    .filter((column: Column<Client, unknown>) => column.getCanHide())
+                    .map((column: Column<Client, unknown>) => {
                         return (
                         <DropdownMenuCheckboxItem
                             key={column.id}
                             className="capitalize"
                             checked={column.getIsVisible()}
-                            onCheckedChange={(value) =>
+                            onCheckedChange={(value: boolean) =>
                             column.toggleVisibility(!!value)
                             }
                         >
@@ -261,9 +267,9 @@ export function AdminClientTable() {
           <div className="rounded-md border">
             <Table>
               <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
+                {table.getHeaderGroups().map((headerGroup: HeaderGroup<Client>) => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
+                    {headerGroup.headers.map((header: Header<Client, unknown>) => {
                       return (
                         <TableHead key={header.id}>
                           {header.isPlaceholder
@@ -280,12 +286,12 @@ export function AdminClientTable() {
               </TableHeader>
               <TableBody>
                 {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
+                  table.getRowModel().rows.map((row: Row<Client>) => (
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
                     >
-                      {row.getVisibleCells().map((cell) => (
+                      {row.getVisibleCells().map((cell: Cell<Client, unknown>) => (
                         <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,

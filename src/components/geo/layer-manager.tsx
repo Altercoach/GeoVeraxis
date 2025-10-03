@@ -129,7 +129,7 @@ export function LayerManager({
                       <Checkbox
                         id={layer.id}
                         checked={activeLayers.includes(layer.id)}
-                        onCheckedChange={(checked) => handleLayerToggle(layer.id, !!checked)}
+                        onCheckedChange={(checked: boolean) => handleLayerToggle(layer.id, !!checked)}
                       />
                       <div className="grid gap-1.5 leading-none">
                         <Label htmlFor={layer.id} className="font-medium">

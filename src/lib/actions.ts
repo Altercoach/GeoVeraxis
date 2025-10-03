@@ -1,5 +1,6 @@
 "use server";
 
+/*
 import {
   provideAiChatbotSupport,
   ProvideAiChatbotSupportInput,
@@ -51,3 +52,4 @@ export async function getChatbotResponse(
     throw new Error("Failed to get chatbot response.");
   }
 }
+*/

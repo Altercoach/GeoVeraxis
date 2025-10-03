@@ -59,7 +59,7 @@ export function MapContainer({
             <Switch
               id="view-mode"
               checked={viewMode === '3D'}
-              onCheckedChange={(checked) => setViewMode(checked ? '3D' : '2D')}
+              onCheckedChange={(checked: boolean) => setViewMode(checked ? '3D' : '2D')}
             />
             <Label htmlFor="view-mode" className="flex-1 text-right">3D View</Label>
           </div>
