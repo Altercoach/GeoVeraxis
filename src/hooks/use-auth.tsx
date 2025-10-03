@@ -12,6 +12,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { useFirebase } from '@/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -25,7 +26,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { auth } = useFirebase();
+  const { auth, firestore } = useFirebase();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,13 +40,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    if (user) {
+        // Create user document in Firestore
+        const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
+        const lastName = lastNameParts.join(' ');
+        
+        await setDoc(doc(firestore, "users", user.uid), {
+            id: user.uid,
+            firstName: firstName,
+            lastName: lastName,
+            email: user.email,
+            role: "Client" 
+        }, { merge: true });
+    }
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    if(userCredential.user) {
-        await updateProfile(userCredential.user, { displayName });
+    const user = userCredential.user;
+    if(user) {
+        await updateProfile(user, { displayName });
+        
+        const [firstName, ...lastNameParts] = displayName.split(' ');
+        const lastName = lastNameParts.join(' ');
+
+        // Create user document in Firestore
+        await setDoc(doc(firestore, "users", user.uid), {
+            id: user.uid,
+            firstName: firstName,
+            lastName: lastName,
+            email: user.email,
+            role: "Client"
+        });
     }
   };
 
@@ -64,10 +92,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useAuth = () => {
+export const useAuthHook = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuthHook must be used within an AuthProvider');
   }
   return context;
 };

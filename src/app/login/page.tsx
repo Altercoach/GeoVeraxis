@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuthHook } from "@/hooks/use-auth";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -59,7 +59,7 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithGoogle, signInWithEmail } = useAuth();
+  const { signInWithGoogle, signInWithEmail } = useAuthHook();
   const router = useRouter();
   const { toast } = useToast();
   const [emailLoading, setEmailLoading] = useState(false);

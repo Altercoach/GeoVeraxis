@@ -30,14 +30,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useAdmin } from '@/hooks/use-admin';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuthHook } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useRouter } from 'next/navigation';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const { viewAs, setViewAs, roles } = useAdmin();
-  const { user, signOut, loading } = useAuth();
+  const { user, signOut, loading } = useAuthHook();
   const router = useRouter();
 
   const handleSignOut = async () => {
