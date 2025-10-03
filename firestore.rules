@@ -1,0 +1,175 @@
+/**
+ * @fileoverview Firestore Security Rules for GeoVeraxis.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user-related data
+ * (properties, documents, transactions). It also implements organization-based
+ * access control where users are members of organizations. Top-level collections
+ * like 'organizations' and 'audit_logs' have independent access controls.
+ *
+ * Data Structure:
+ * - /users/{userId}: User profiles, accessible only by the user themselves.
+ * - /organizations/{organizationId}: Organization profiles, independently managed.
+ * - /users/{userId}/properties/{propertyId}: Properties owned by a user, accessible only by the user.
+ * - /users/{userId}/properties/{propertyId}/documents/{documentId}: Documents related to a user's property, accessible only by the user.
+ * - /users/{userId}/properties/{propertyId}/transactions/{transactionId}: Transactions related to a user's property, accessible only by the user.
+ * - /properties/{propertyId}/nft: NFT details associated with a property. Public read, owner-only writes (requires 'ownerId' on NFT document).
+ * - /audit_logs/{auditLogId}: Audit logs, write-only by the server (not implemented in this prototype).
+ * - /organizations/{organizationId}/users/{userId}: User memberships within an organization.
+ *
+ * Key Security Decisions:
+ * - Users can only access their own user document.
+ * - Users can only access properties, documents, and transactions under their user ID.
+ * - Listing of all users is disallowed.
+ * - NFT documents are publicly readable, but owner-only writable (requires 'ownerId' field).
+ *
+ * Denormalization for Authorization:
+ * - The /users/{userId}/properties/{propertyId} documents are expected to contain a denormalized `ownerId` field matching the {userId}. This enables simpler security rules without requiring additional `get()` calls.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the request is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user's ID matches the provided user ID.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the existing owner of the document.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rules for user profiles.
+     * @path /users/{userId}
+     * @allow (create) - User 'abc' can create their own profile if request.auth.uid == 'abc'.
+     * @deny (create) - User 'def' cannot create a profile for user 'abc'.
+     * @allow (get, update, delete) - User 'abc' can get, update, and delete their own profile.
+     * @deny (get, update, delete) - User 'def' cannot get, update, or delete user 'abc's profile.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for organization profiles.
+     * @path /organizations/{organizationId}
+     * @allow (create) - Any authenticated user can create an organization.
+     * @deny (create) - Unauthenticated users cannot create organizations.
+     * @allow (get, list, update, delete) - Any authenticated user can get, list, update and delete any organization (prototype).
+     * @principle Allows any authenticated user to manage organizations (prototype).
+     */
+    match /organizations/{organizationId} {
+      allow get, list: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for property records owned by a specific user.
+     * @path /users/{userId}/properties/{propertyId}
+     * @allow (create) - User 'abc' can create a property under their ID if request.auth.uid == 'abc'.
+     * @deny (create) - User 'def' cannot create a property under user 'abc's ID.
+     * @allow (get, list, update, delete) - User 'abc' can get, list, update, and delete their own properties.
+     * @deny (get, update, delete) - User 'def' cannot get, update, or delete user 'abc's properties.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/properties/{propertyId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.ownerId == userId;
+      allow update: if isExistingOwner(userId) && resource.data.ownerId == userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for documents associated with a specific property owned by a user.
+     * @path /users/{userId}/properties/{propertyId}/documents/{documentId}
+     * @allow (create) - User 'abc' can create a document under their property if request.auth.uid == 'abc'.
+     * @deny (create) - User 'def' cannot create a document under user 'abc's property.
+     * @allow (get, list, update, delete) - User 'abc' can get, list, update, and delete documents under their own properties.
+     * @deny (get, update, delete) - User 'def' cannot get, update, or delete documents under user 'abc's properties.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/properties/{propertyId}/documents/{documentId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for transactions related to a specific property owned by a user.
+     * @path /users/{userId}/properties/{propertyId}/transactions/{transactionId}
+     * @allow (create) - User 'abc' can create a transaction under their property if request.auth.uid == 'abc'.
+     * @deny (create) - User 'def' cannot create a transaction under user 'abc's property.
+     * @allow (get, list, update, delete) - User 'abc' can get, list, update, and delete transactions under their own properties.
+     * @deny (get, update, delete) - User 'def' cannot get, update, or delete transactions under user 'abc's properties.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/properties/{propertyId}/transactions/{transactionId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for NFT details associated with a property.
+     * @path /properties/{propertyId}/nft
+     * @allow (get, list) - Anyone can read NFT details.
+     * @allow (create, update, delete) - Only the owner of the NFT (specified in document.ownerId) can modify.
+     * @principle Allows public read access but restricts writes to the NFT owner.
+     */
+    match /properties/{propertyId}/nft {
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isSignedIn() && resource != null && resource.data.ownerId == request.auth.uid;
+      allow delete: if isSignedIn() && resource != null && resource.data.ownerId == request.auth.uid;
+    }
+
+    /**
+     * @description Rules for audit log entries.
+     * @path /audit_logs/{auditLogId}
+     * @allow (create) - Only the server can create audit logs.
+     * @deny (get, list, update, delete) - No one can get, list, update, or delete audit logs.
+     * @principle Restricts write access to the server.
+     */
+    match /audit_logs/{auditLogId} {
+      allow get, list: if false;
+      allow create: if false;  // TODO: Implement server-only access
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Rules for users within an organization.
+     * @path /organizations/{organizationId}/users/{userId}
+     * @allow (create) - Any authenticated user can create an organization user entry.
+     * @deny (create) - Unauthenticated users cannot create organization user entries.
+     * @allow (get, list, update, delete) - Any authenticated user can get, list, update and delete an organization user entry (prototype).
+     * @principle Allows any authenticated user to manage organization users (prototype).
+     */
+    match /organizations/{organizationId}/users/{userId} {
+      allow get, list: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+  }
+}

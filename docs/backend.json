@@ -1,0 +1,472 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the GeoLegal Nexus platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the user within the platform (e.g., admin, certifier, appraiser, validator, user)."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Reference to Organization. (Relationship: Organization 1:N User).  Indicates the organization the user belongs to, if applicable."
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "description": "Preferred language of the user (e.g., en, es)."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "role"
+      ]
+    },
+    "Organization": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Organization",
+      "type": "object",
+      "description": "Represents an organization using the GeoLegal Nexus platform (e.g., a bank, a government agency).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Organization entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the organization."
+        },
+        "legalName": {
+          "type": "string",
+          "description": "Legal name of the organization."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "Contact email address for the organization.",
+          "format": "email"
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the organization."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "legalName",
+        "contactEmail"
+      ]
+    },
+    "Property": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Property",
+      "type": "object",
+      "description": "Represents a property record in the GeoLegal Nexus platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Property entity."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Property).  Identifier of the user who owns the property."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the property."
+        },
+        "parcelId": {
+          "type": "string",
+          "description": "Parcel identifier for the property."
+        },
+        "legalDescription": {
+          "type": "string",
+          "description": "Legal description of the property."
+        },
+        "coordinates": {
+          "type": "string",
+          "description": "Coordinates of the property (e.g., GeoJSON)."
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "address",
+        "parcelId"
+      ]
+    },
+    "Document": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Document",
+      "type": "object",
+      "description": "Represents a document associated with a property or transaction.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Document entity."
+        },
+        "propertyId": {
+          "type": "string",
+          "description": "Reference to Property. (Relationship: Property 1:N Document). Identifier of the property this document is associated with."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Document).  Identifier of the user who uploaded the document."
+        },
+        "fileName": {
+          "type": "string",
+          "description": "Name of the document file."
+        },
+        "fileType": {
+          "type": "string",
+          "description": "Type of the document file (e.g., pdf, image)."
+        },
+        "fileSize": {
+          "type": "number",
+          "description": "Size of the document file in bytes."
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date and time the document was uploaded.",
+          "format": "date-time"
+        },
+        "documentCategory": {
+          "type": "string",
+          "description": "Category of the document (e.g., deed, mortgage, contract)."
+        },
+        "aiAnalysisResults": {
+          "type": "string",
+          "description": "JSON string containing the results of AI analysis on the document."
+        }
+      },
+      "required": [
+        "id",
+        "propertyId",
+        "userId",
+        "fileName",
+        "fileType",
+        "fileSize",
+        "uploadDate"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a transaction related to a property (e.g., sale, transfer, loan).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Transaction entity."
+        },
+        "propertyId": {
+          "type": "string",
+          "description": "Reference to Property. (Relationship: Property 1:N Transaction). Identifier of the property involved in the transaction."
+        },
+        "transactionType": {
+          "type": "string",
+          "description": "Type of the transaction (e.g., sale, transfer, loan)."
+        },
+        "transactionDate": {
+          "type": "string",
+          "description": "Date and time of the transaction.",
+          "format": "date-time"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the transaction."
+        },
+        "partiesInvolved": {
+          "type": "string",
+          "description": "JSON string containing details of parties involved in transaction."
+        },
+        "smartContractId": {
+          "type": "string",
+          "description": "Identifier of the smart contract associated with the transaction, if applicable."
+        }
+      },
+      "required": [
+        "id",
+        "propertyId",
+        "transactionType",
+        "transactionDate",
+        "amount"
+      ]
+    },
+    "AuditLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AuditLog",
+      "type": "object",
+      "description": "Represents an audit log entry for actions performed on the platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AuditLog entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. Identifier of the user who performed the action."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of the action.",
+          "format": "date-time"
+        },
+        "action": {
+          "type": "string",
+          "description": "Description of the action performed (e.g., document uploaded, property transferred)."
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "Type of resource affected by the action (e.g., Property, Document, User)."
+        },
+        "resourceId": {
+          "type": "string",
+          "description": "Identifier of the resource affected by the action."
+        },
+        "details": {
+          "type": "string",
+          "description": "JSON string containing additional details about the action."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timestamp",
+        "action",
+        "resourceType",
+        "resourceId"
+      ]
+    },
+    "NFT": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NFT",
+      "type": "object",
+      "description": "Represents a Non-Fungible Token (NFT) associated with a property.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the NFT entity."
+        },
+        "propertyId": {
+          "type": "string",
+          "description": "Reference to Property. (Relationship: Property 1:1 NFT). Identifier of the property represented by the NFT."
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Unique identifier of the NFT on the blockchain."
+        },
+        "contractAddress": {
+          "type": "string",
+          "description": "Address of the smart contract where the NFT is deployed."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Reference to User. Identifier of the user who owns the NFT."
+        },
+        "mintDate": {
+          "type": "string",
+          "description": "Date and time the NFT was minted.",
+          "format": "date-time"
+        },
+        "metadataUri": {
+          "type": "string",
+          "description": "URI pointing to the NFT metadata (e.g., IPFS)."
+        }
+      },
+      "required": [
+        "id",
+        "propertyId",
+        "tokenId",
+        "contractAddress",
+        "ownerId",
+        "mintDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Includes personal information and role details.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/organizations/{organizationId}",
+        "definition": {
+          "entityName": "Organization",
+          "schema": {
+            "$ref": "#/backend/entities/Organization"
+          },
+          "description": "Stores organization profiles, including legal names and contact information.",
+          "params": [
+            {
+              "name": "organizationId",
+              "description": "The unique identifier for the organization."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/properties/{propertyId}",
+        "definition": {
+          "entityName": "Property",
+          "schema": {
+            "$ref": "#/backend/entities/Property"
+          },
+          "description": "Stores property records owned by a specific user.  Includes denormalized 'ownerId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user (owner)."
+            },
+            {
+              "name": "propertyId",
+              "description": "The unique identifier for the property."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/properties/{propertyId}/documents/{documentId}",
+        "definition": {
+          "entityName": "Document",
+          "schema": {
+            "$ref": "#/backend/entities/Document"
+          },
+          "description": "Stores documents associated with a specific property owned by a user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user (owner)."
+            },
+            {
+              "name": "propertyId",
+              "description": "The unique identifier for the property."
+            },
+            {
+              "name": "documentId",
+              "description": "The unique identifier for the document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/properties/{propertyId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores transactions related to a specific property owned by a user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user (owner)."
+            },
+            {
+              "name": "propertyId",
+              "description": "The unique identifier for the property."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique identifier for the transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/properties/{propertyId}/nft",
+        "definition": {
+          "entityName": "NFT",
+          "schema": {
+            "$ref": "#/backend/entities/NFT"
+          },
+          "description": "Stores NFT details associated with a property.  This is a top-level collection as NFT ownership might transcend individual user ownership.",
+          "params": [
+            {
+              "name": "propertyId",
+              "description": "The unique identifier for the property."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/audit_logs/{auditLogId}",
+        "definition": {
+          "entityName": "AuditLog",
+          "schema": {
+            "$ref": "#/backend/entities/AuditLog"
+          },
+          "description": "Stores audit log entries for actions performed on the platform.",
+          "params": [
+            {
+              "name": "auditLogId",
+              "description": "The unique identifier for the audit log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/organizations/{organizationId}/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Represents a user's membership within an organization. Used for managing user roles and permissions within organizations.",
+          "params": [
+            {
+              "name": "organizationId",
+              "description": "The unique identifier for the organization."
+            },
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support GeoVeraxis's requirements for a scalable, secure, and AI/blockchain-enabled platform.  The design emphasizes Authorization Independence by denormalizing authorization data, enabling robust security rules and atomic operations. Data is segregated into collections based on security posture. Access Modeling follows a consistent pattern: path-based ownership for private user data, membership maps for collaborative data, and existence checks for global roles. Explicit State Modeling uses dedicated `status` fields, avoids dynamic keys, and uses consistent naming.\n\n**Authorization Independence:**\n\n*   The `properties` subcollection under `users/{userId}` includes a denormalized `ownerId` to ensure the properties owned by a user can be queried and secured independently without needing to `get()` the user document.\n*   The `organizations/{organizationId}/users/{userId}` path enforces explicit membership.  This path structure inherently establishes a 1:N relation between an organization and its users while providing authorization context.\n\n**QAPs (Rules are not Filters):**\n\n*   The segregation of `users/{userId}/properties` allows for secure `list` operations of a user's properties.  Rules can easily ensure only the user can access their own properties.\n*    The explicit path for `organizations/{organizationId}/users/{userId}` allows listing users in an organization without filtering."
+  }
+}

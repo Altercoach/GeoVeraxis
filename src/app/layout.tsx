@@ -6,7 +6,8 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { AdminProvider } from '@/hooks/use-admin';
 import { AuthProvider } from '@/hooks/use-auth';
-import { FirebaseProvider } from '@/components/firebase-provider';
+import { FirebaseProvider } from '@/firebase/provider';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta' });
@@ -26,11 +27,13 @@ export default function RootLayout({
       <body className={cn("min-h-screen bg-background font-sans antialiased", inter.variable, jakarta.variable)}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <FirebaseProvider>
-            <AuthProvider>
-              <AdminProvider>
-                {children}
-              </AdminProvider>
-            </AuthProvider>
+            <FirebaseClientProvider>
+              <AuthProvider>
+                <AdminProvider>
+                  {children}
+                </AdminProvider>
+              </AuthProvider>
+            </FirebaseClientProvider>
           </FirebaseProvider>
         </ThemeProvider>
         <Toaster />
