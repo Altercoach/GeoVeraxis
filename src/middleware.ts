@@ -12,26 +12,31 @@ export function middleware(request: NextRequest) {
   // Lista de rutas que no requieren autenticación.
   const publicPaths = ['/login', '/register', '/pricing', '/'];
 
-  // Si la ruta es pública, permitir el acceso sin verificar la autenticación.
-  if (publicPaths.some(path => pathname === path || (path !== '/' && pathname.startsWith(path)))) {
-    return NextResponse.next();
-  }
-
   // Obtener el token de autenticación de las cookies.
   const authToken = request.cookies.get(AUTH_COOKIE_NAME);
 
-  // Si el usuario intenta acceder a una ruta protegida (como /dashboard)
+  const isPublicPath = publicPaths.some(path => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  });
+
+  // Si el usuario está autenticado y trata de acceder a una ruta pública como login/register,
+  // redirigirlo al dashboard.
+  if (authToken && (pathname.startsWith('/login') || pathname.startsWith('/register'))) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // Si la ruta es pública y no hay token, permitir el acceso.
+  if (isPublicPath || pathname === '/') {
+    return NextResponse.next();
+  }
+
+  // Si el usuario intenta acceder a una ruta protegida (cualquiera que no sea pública)
   // y no hay token, redirigirlo a la página de login.
-  if (pathname.startsWith('/dashboard') && !authToken) {
+  if (!authToken && !isPublicPath) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', pathname); // Opcional: para redirigir al usuario de vuelta después del login.
     return NextResponse.redirect(loginUrl);
-  }
-
-  // Si el usuario está autenticado y trata de acceder a login/register,
-  // redirigirlo al dashboard.
-  if ((pathname === '/login' || pathname === '/register') && authToken) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // Para todas las demás rutas, permitir el acceso.
