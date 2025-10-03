@@ -1,12 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { 
-  onAuthStateChanged,
   User,
   GoogleAuthProvider,
   signInWithRedirect,
-  getRedirectResult,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -27,14 +25,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { auth, firestore, isUserLoading, user: firebaseUser } = useFirebase();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setUser(firebaseUser);
-    setLoading(isUserLoading);
-  }, [firebaseUser, isUserLoading]);
+  const { auth, firestore, user, isUserLoading } = useFirebase();
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -71,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await firebaseSignOut(auth);
   };
 
-  const value = { user, loading, signInWithGoogle, signUpWithEmail, signInWithEmail, signOut };
+  const value = { user, loading: isUserLoading, signInWithGoogle, signUpWithEmail, signInWithEmail, signOut };
 
   return (
     <AuthContext.Provider value={value}>

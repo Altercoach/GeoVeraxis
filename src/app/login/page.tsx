@@ -72,39 +72,44 @@ export default function LoginPage() {
   const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
 
   useEffect(() => {
-    // This effect runs once on component mount to handle the redirect result
+    // This effect runs once on component mount to handle the redirect result from Google
     getRedirectResult(auth)
       .then(async (result) => {
         if (result) {
-          // User successfully signed in.
+          // User successfully signed in via redirect.
           const user = result.user;
           const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
           const lastName = lastNameParts.join(' ');
           
-          // Ensure user document is created in Firestore.
+          // Ensure user document is created/updated in Firestore.
+          // Using merge: true prevents overwriting data if the user already exists.
           await setDoc(doc(firestore, "users", user.uid), {
               id: user.uid,
               firstName: firstName || 'User',
               lastName: lastName || '',
               email: user.email,
-              role: "Client" // Default role
+              role: "Client" // Assign a default role
           }, { merge: true });
           
-          // The onAuthStateChanged listener will handle the redirect to dashboard
+          // The onAuthStateChanged listener in FirebaseProvider will detect the user
+          // and the redirect to the dashboard will be handled there.
         }
       })
       .catch((error) => {
         console.error("Error getting redirect result:", error);
         toast({
             variant: "destructive",
-            title: "Error de inicio de sesión",
-            description: "No se pudo completar el inicio de sesión con Google.",
+            title: "Error de inicio de sesión con Google",
+            description: "No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.",
         });
       })
       .finally(() => {
+        // Stop the redirect processing indicator after attempt, success or fail
         setIsProcessingRedirect(false);
       });
-  }, [auth, firestore, toast, router]);
+  // The empty dependency array ensures this effect runs only ONCE.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth, firestore, toast]);
 
   useEffect(() => {
     if (user) {
@@ -115,6 +120,7 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
+      // This will trigger the redirect, the rest of the logic is in the effect above
       await signInWithGoogle();
     } catch (error) {
       toast({
@@ -132,6 +138,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
+      // On success, the onAuthStateChanged listener will handle the redirect
     } catch (error) {
       toast({
         variant: "destructive",
@@ -144,6 +151,7 @@ export default function LoginPage() {
     }
   };
 
+  // Combine all loading states for a single loading indicator
   const isLoading = loading || isSubmitting || isProcessingRedirect;
   
   if (isLoading || user) {

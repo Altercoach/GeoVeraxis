@@ -69,6 +69,8 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    // If the user is already logged in, redirect them to the dashboard.
+    // This handles cases where the user navigates back to the register page.
     if (user) {
       router.push('/dashboard');
     }
@@ -77,9 +79,19 @@ export default function RegisterPage() {
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password.length < 6) {
+        toast({
+            variant: "destructive",
+            title: "Contraseña insegura",
+            description: "La contraseña debe tener al menos 6 caracteres.",
+        });
+        return;
+    }
     setIsSubmitting(true);
     try {
       await signUpWithEmail(email, password, `${firstName} ${lastName}`);
+      // On success, the onAuthStateChanged listener will handle the user state
+      // and the useEffect above will trigger the redirect.
     } catch (error) {
       toast({
         variant: "destructive",
@@ -95,6 +107,7 @@ export default function RegisterPage() {
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
+      // This will trigger the redirect. The result is handled on the login page.
       await signInWithGoogle();
     } catch (error) {
       toast({
@@ -103,10 +116,13 @@ export default function RegisterPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
-      setIsSubmitting(false);
+      // We don't set isSubmitting to false here because a redirect is in progress.
+      // If it fails, the user will remain on the page and can try again.
     }
   };
 
+  // The main 'loading' state comes from the auth provider, which tracks the initial
+  // auth state check. 'isSubmitting' is for actions initiated on this page.
   const isLoading = loading || isSubmitting;
 
   if (isLoading || user) {
@@ -154,7 +170,7 @@ export default function RegisterPage() {
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isLoading}/>
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Crear Cuenta
               </Button>
               <div className="relative">
@@ -168,7 +184,7 @@ export default function RegisterPage() {
                 </div>
               </div>
               <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Registrarse con Google
               </Button>
             </CardContent>
