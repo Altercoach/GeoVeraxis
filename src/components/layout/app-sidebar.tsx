@@ -20,6 +20,7 @@ import {
   Database,
   Settings,
   Shield,
+  Map,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -27,6 +28,7 @@ import { useAdmin } from "@/hooks/use-admin";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/dashboard/map", icon: Map, label: "Map" },
   {
     href: "/dashboard/documents",
     icon: FileCheck2,
