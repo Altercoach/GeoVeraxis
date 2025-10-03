@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,6 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
@@ -52,6 +59,50 @@ const Logo = () => (
 );
 
 export default function RegisterPage() {
+  const { signUpWithEmail, signInWithGoogle } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await signUpWithEmail(email, password, `${firstName} ${lastName}`);
+      router.push('/dashboard');
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error de registro",
+        description: "No se pudo crear la cuenta. Es posible que el correo ya esté en uso.",
+      });
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signInWithGoogle();
+      router.push('/dashboard');
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error de inicio de sesión",
+        description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
+      });
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md mx-auto p-4">
@@ -68,43 +119,46 @@ export default function RegisterPage() {
               Únete a GeoVeraxis para empezar a transformar tus procesos.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
-             <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="first-name">Nombre</Label>
-                <Input id="first-name" placeholder="Max" />
+          <form onSubmit={handleEmailSignUp}>
+            <CardContent className="grid gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="first-name">Nombre</Label>
+                  <Input id="first-name" placeholder="Max" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="last-name">Apellidos</Label>
+                  <Input id="last-name" placeholder="Robinson" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="last-name">Apellidos</Label>
-                <Input id="last-name" placeholder="Robinson" />
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" />
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="password">Contraseña</Label>
-                <Input id="password" type="password" />
-            </div>
-            <Button type="submit" className="w-full">
-              Crear Cuenta
-            </Button>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+              <div className="grid gap-2">
+                  <Label htmlFor="password">Contraseña</Label>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">
-                  O
-                </span>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Crear Cuenta
+              </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    O
+                  </span>
+                </div>
               </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              <GoogleIcon className="mr-2 h-4 w-4" />
-              Registrarse con Google
-            </Button>
-          </CardContent>
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                Registrarse con Google
+              </Button>
+            </CardContent>
+          </form>
           <CardFooter className="text-center text-sm">
             ¿Ya tienes una cuenta?{" "}
             <Link href="/login" className="underline ml-1 text-primary">

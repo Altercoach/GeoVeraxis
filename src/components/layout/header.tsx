@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
+import Link from 'next/link';
 import {
   Search,
   User,
@@ -9,12 +8,10 @@ import {
   LogOut,
   Sun,
   Moon,
-  Users,
-  Briefcase,
-  UserCheck,
   Eye,
-} from "lucide-react";
-import { useTheme } from "next-themes";
+  Loader2,
+} from 'lucide-react';
+import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,21 +25,29 @@ import {
   DropdownMenuSubContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { useAdmin } from "@/hooks/use-admin";
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useAdmin } from '@/hooks/use-admin';
+import { useAuth } from '@/hooks/use-auth';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
-    const userAvatar = PlaceHolderImages.find(p => p.id === "user-avatar-1");
-    const { theme, setTheme } = useTheme();
-    const { viewAs, setViewAs, roles } = useAdmin();
+  const { theme, setTheme } = useTheme();
+  const { viewAs, setViewAs, roles } = useAdmin();
+  const { user, signOut, loading } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/login');
+  };
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
-        <SidebarTrigger className="md:hidden"/>
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
+      <SidebarTrigger className="md:hidden" />
       <div className="w-full flex-1">
         <form>
           <div className="relative">
@@ -55,60 +60,83 @@ export function Header() {
           </div>
         </form>
       </div>
-       <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="rounded-full"
-        >
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-        </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        className="rounded-full"
+      >
+        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        <span className="sr-only">Toggle theme</span>
+      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">
-            {userAvatar && <Image src={userAvatar.imageUrl} alt="User Avatar" width={40} height={40} className="rounded-full" data-ai-hint={userAvatar.imageHint} />}
+            {loading ? (
+                 <Avatar>
+                    <AvatarFallback><Loader2 className="animate-spin" /></AvatarFallback>
+                </Avatar>
+            ) : user ? (
+              <Avatar>
+                {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
+                <AvatarFallback>{user.displayName?.[0] || user.email?.[0]}</AvatarFallback>
+              </Avatar>
+            ) : (
+                <Avatar>
+                    <AvatarFallback>G</AvatarFallback>
+                </Avatar>
+            )}
             <span className="sr-only">Toggle user menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <p>My Account</p>
+            {user && <p className="text-xs font-normal text-muted-foreground">{user.email}</p>}
+            </DropdownMenuLabel>
           <DropdownMenuSeparator />
-           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Eye className="mr-2 h-4 w-4" />
-              <span>View As: <strong>{viewAs}</strong></span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup value={viewAs} onValueChange={setViewAs}>
-                  {roles.map((role) => (
-                    <DropdownMenuRadioItem key={role.id} value={role.id}>
-                       <role.icon className="mr-2 h-4 w-4" />
-                      {role.name}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-          <DropdownMenuSeparator />
+          {user && viewAs === 'Superadmin' && (
+            <>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Eye className="mr-2 h-4 w-4" />
+                  <span>View As: <strong>{viewAs}</strong></span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup
+                      value={viewAs}
+                      onValueChange={setViewAs}
+                    >
+                      {roles.map((role) => (
+                        <DropdownMenuRadioItem key={role.id} value={role.id}>
+                          <role.icon className="mr-2 h-4 w-4" />
+                          {role.name}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator />
+            </>
+          )}
           <DropdownMenuItem asChild>
             <Link href="/dashboard/settings">
-                <User className="mr-2 h-4 w-4"/>
-                <span>Profile</span>
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-             <Link href="/dashboard/settings">
-                <Settings className="mr-2 h-4 w-4"/>
-                <span>Settings</span>
+            <Link href="/dashboard/settings">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut className="mr-2 h-4 w-4"/>
+          <DropdownMenuItem onClick={handleSignOut}>
+            <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

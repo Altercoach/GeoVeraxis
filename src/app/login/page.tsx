@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,6 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
@@ -52,6 +59,51 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
+  const { signInWithGoogle, signInWithEmail } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+      router.push('/dashboard');
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error de inicio de sesión",
+        description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
+      });
+      console.error(error);
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailLoading(true);
+    try {
+      await signInWithEmail(email, password);
+      router.push('/dashboard');
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error de inicio de sesión",
+        description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
+      });
+      console.error(error);
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  const isLoading = emailLoading || googleLoading;
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md mx-auto p-4">
@@ -68,41 +120,44 @@ export default function LoginPage() {
               Inicia sesión para acceder a tu panel de GeoVeraxis.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
-            <Button variant="outline" className="w-full">
-              <GoogleIcon className="mr-2 h-4 w-4" />
-              Iniciar sesión con Google
-            </Button>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+          <form onSubmit={handleEmailSignIn}>
+            <CardContent className="grid gap-4">
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
+                {googleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                Iniciar sesión con Google
+              </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    O continuar con
+                  </span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">
-                  O continuar con
-                </span>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
               </div>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Contraseña</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm text-primary hover:underline"
-                >
-                  ¿Olvidaste tu contraseña?
-                </Link>
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Contraseña</Label>
+                  <Link
+                    href="#"
+                    className="ml-auto inline-block text-sm text-primary hover:underline"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isLoading} />
               </div>
-              <Input id="password" type="password" />
-            </div>
-            <Button type="submit" className="w-full">
-              Iniciar Sesión
-            </Button>
-          </CardContent>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {emailLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Iniciar Sesión
+              </Button>
+            </CardContent>
+          </form>
           <CardFooter className="flex flex-col gap-2 text-center text-sm">
             <div>
                 ¿No tienes una cuenta?{" "}
