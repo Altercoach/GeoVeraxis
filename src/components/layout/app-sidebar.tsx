@@ -19,9 +19,11 @@ import {
   GitBranch,
   Database,
   Settings,
+  Shield,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useAdmin } from "@/hooks/use-admin";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -35,6 +37,10 @@ const navItems = [
   { href: "/dashboard/users", icon: Users, label: "User Management" },
   { href: "/dashboard/workflows", icon: GitBranch, label: "Workflows" },
   { href: "/dashboard/blockchain", icon: Database, label: "Blockchain" },
+];
+
+const adminNavItems = [
+    { href: "/dashboard/admin", icon: Shield, label: "Admin Panel" },
 ];
 
 const settingsItems = [
@@ -73,11 +79,12 @@ const Logo = () => (
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { viewAs } = useAdmin();
 
   return (
     <Sidebar>
       <SidebarHeader>
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2">
           <Logo />
           <span className="font-semibold text-lg font-jakarta">GeoVeraxis</span>
         </Link>
@@ -101,6 +108,29 @@ export function AppSidebar() {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        {viewAs === 'Superadmin' && (
+            <SidebarGroup>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <hr className="border-sidebar-border my-2" />
+                    </SidebarMenuItem>
+                    {adminNavItems.map((item) => (
+                        <SidebarMenuItem key={item.href}>
+                            <SidebarMenuButton
+                            asChild
+                            isActive={pathname === item.href}
+                            tooltip={{ children: item.label, side: "right" }}
+                            >
+                            <Link href={item.href}>
+                                <item.icon />
+                                <span>{item.label}</span>
+                            </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
