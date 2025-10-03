@@ -10,6 +10,7 @@ import {
   Moon,
   Eye,
   Loader2,
+  ChevronDown,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
@@ -19,10 +20,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
-  DropdownMenuSubContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from '@/components/ui/dropdown-menu';
@@ -45,6 +42,8 @@ export function Header() {
     router.push('/login');
   };
 
+  const isSuperAdmin = viewAs === 'Superadmin';
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
       <SidebarTrigger className="md:hidden" />
@@ -60,6 +59,37 @@ export function Header() {
           </div>
         </form>
       </div>
+
+      {user && isSuperAdmin && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="hidden md:flex">
+              <Eye className="mr-2 h-4 w-4" />
+              <div className='flex flex-col items-start'>
+                <span className='text-xs text-muted-foreground -mb-1'>Viendo como</span>
+                <span className='font-bold'>{viewAs}</span>
+              </div>
+              <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60">
+             <DropdownMenuLabel>Suplantar Rol</DropdownMenuLabel>
+             <DropdownMenuSeparator/>
+              <DropdownMenuRadioGroup
+                value={viewAs}
+                onValueChange={setViewAs}
+              >
+                {roles.map((role) => (
+                  <DropdownMenuRadioItem key={role.id} value={role.id}>
+                    <role.icon className="mr-2 h-4 w-4" />
+                    {role.name}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+
       <Button
         variant="ghost"
         size="icon"
@@ -96,32 +126,6 @@ export function Header() {
             {user && <p className="text-xs font-normal text-muted-foreground">{user.email}</p>}
             </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {user && viewAs === 'Superadmin' && (
-            <>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <Eye className="mr-2 h-4 w-4" />
-                  <span>View As: <strong>{viewAs}</strong></span>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuRadioGroup
-                      value={viewAs}
-                      onValueChange={setViewAs}
-                    >
-                      {roles.map((role) => (
-                        <DropdownMenuRadioItem key={role.id} value={role.id}>
-                          <role.icon className="mr-2 h-4 w-4" />
-                          {role.name}
-                        </DropdownMenuRadioItem>
-                      ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-              <DropdownMenuSeparator />
-            </>
-          )}
           <DropdownMenuItem asChild>
             <Link href="/dashboard/settings">
               <User className="mr-2 h-4 w-4" />
