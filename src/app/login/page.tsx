@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useAuthHook } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -59,7 +59,7 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithGoogle, signInWithEmail } = useAuthHook();
+  const { signInWithGoogle, signInWithEmail, user, loading } = useAuthHook();
   const router = useRouter();
   const { toast } = useToast();
   const [emailLoading, setEmailLoading] = useState(false);
@@ -67,11 +67,19 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
+
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     try {
       await signInWithGoogle();
-      router.push('/dashboard');
+      // The user will be redirected to Google, and then back.
+      // The `useEffect` will handle the navigation to the dashboard.
     } catch (error) {
       toast({
         variant: "destructive",
@@ -79,7 +87,6 @@ export default function LoginPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
-    } finally {
       setGoogleLoading(false);
     }
   };
@@ -89,7 +96,7 @@ export default function LoginPage() {
     setEmailLoading(true);
     try {
       await signInWithEmail(email, password);
-      router.push('/dashboard');
+      // Let the useEffect handle redirection
     } catch (error) {
       toast({
         variant: "destructive",
@@ -102,7 +109,15 @@ export default function LoginPage() {
     }
   };
 
-  const isLoading = emailLoading || googleLoading;
+  const isLoading = emailLoading || googleLoading || loading;
+  
+  if (loading) {
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    )
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">

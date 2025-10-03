@@ -5,7 +5,8 @@ import {
   onAuthStateChanged,
   User,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -35,14 +36,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(user);
       setLoading(false);
     });
-    return () => unsubscribe();
-  }, [auth]);
 
-  const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    if (user) {
+    getRedirectResult(auth).then(async (result) => {
+      if (result) {
+        const user = result.user;
         // Create user document in Firestore
         const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
         const lastName = lastNameParts.join(' ');
@@ -54,7 +51,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             email: user.email,
             role: "Client" 
         }, { merge: true });
-    }
+      }
+    }).catch(console.error);
+
+
+    return () => unsubscribe();
+  }, [auth, firestore]);
+
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    await signInWithRedirect(auth, provider);
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {

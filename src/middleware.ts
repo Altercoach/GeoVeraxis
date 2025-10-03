@@ -1,56 +1,55 @@
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Este token se utiliza para identificar a los usuarios autenticados.
-// Se almacena en las cookies del navegador.
-const AUTH_COOKIE_NAME = 'firebase-auth';
+// This token is used to identify authenticated users.
+// It is stored in the browser's cookies.
+const AUTH_COOKIE_NAME = '__session'; // A more generic name is better
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Lista de rutas que no requieren autenticación.
+  // List of routes that do not require authentication.
   const publicPaths = ['/login', '/register', '/pricing', '/payment'];
 
-  // Obtener el token de autenticación de las cookies.
+  // Get the authentication token from cookies.
   const authToken = request.cookies.get(AUTH_COOKIE_NAME);
 
   const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
   const isRootPath = pathname === '/';
 
-  // Si el usuario está autenticado y trata de acceder a una ruta pública como login/register/pricing/payment,
-  // redirigirlo al dashboard.
+  // If the user is authenticated and tries to access a public path like login/register/pricing/payment,
+  // redirect them to the dashboard.
   if (authToken && isPublicPath) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Permitir el acceso a la página de inicio (landing page) sin autenticación
+  // Allow access to the landing page without authentication
   if (isRootPath) {
     return NextResponse.next();
   }
 
-  // Permitir el acceso a las rutas públicas si no hay token
+  // Allow access to public routes if there is no token
   if (isPublicPath && !authToken) {
     return NextResponse.next();
   }
 
-  // Si el usuario intenta acceder a una ruta protegida (cualquiera que no sea pública o raíz)
-  // y no hay token, redirigirlo a la página de login.
+  // If the user tries to access a protected route (any route that is not public or root)
+  // and there is no token, redirect them to the login page.
   if (!authToken && !isPublicPath && !isRootPath) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('next', pathname); // Opcional: para redirigir al usuario de vuelta después del login.
+    loginUrl.searchParams.set('next', pathname); // Optional: to redirect the user back after login.
     return NextResponse.redirect(loginUrl);
   }
 
-  // Para todas las demás rutas, permitir el acceso.
+  // For all other routes, allow access.
   return NextResponse.next();
 }
 
-// Configuración del middleware para especificar qué rutas debe vigilar.
+// Middleware configuration to specify which routes it should watch.
 export const config = {
   matcher: [
-    // Aplicar a todas las rutas excepto las que son para archivos estáticos,
-    // imágenes o rutas internas de Next.js.
+    // Apply to all routes except those for static files,
+    // images, or Next.js internal routes.
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

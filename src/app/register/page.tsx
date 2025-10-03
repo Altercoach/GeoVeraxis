@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useAuthHook } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -59,21 +59,29 @@ const Logo = () => (
 );
 
 export default function RegisterPage() {
-  const { signUpWithEmail, signInWithGoogle } = useAuthHook();
+  const { signUpWithEmail, signInWithGoogle, user, loading } = useAuthHook();
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
+
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setEmailLoading(true);
     try {
       await signUpWithEmail(email, password, `${firstName} ${lastName}`);
-      router.push('/dashboard');
+      // Let the useEffect handle redirection
     } catch (error) {
       toast({
         variant: "destructive",
@@ -82,15 +90,16 @@ export default function RegisterPage() {
       });
       console.error(error);
     } finally {
-      setIsLoading(false);
+      setEmailLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true);
+    setGoogleLoading(true);
     try {
       await signInWithGoogle();
-      router.push('/dashboard');
+       // The user will be redirected to Google, and then back.
+      // The `useEffect` will handle the navigation to the dashboard.
     } catch (error) {
       toast({
         variant: "destructive",
@@ -98,10 +107,20 @@ export default function RegisterPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
-    } finally {
-      setIsLoading(false);
+      setGoogleLoading(false);
     }
   };
+
+  const isLoading = emailLoading || googleLoading || loading;
+
+  if (loading) {
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    )
+  }
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
@@ -124,23 +143,23 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="first-name">Nombre</Label>
-                  <Input id="first-name" placeholder="Max" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                  <Input id="first-name" placeholder="Max" value={firstName} onChange={(e) => setFirstName(e.target.value)} required disabled={isLoading}/>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="last-name">Apellidos</Label>
-                  <Input id="last-name" placeholder="Robinson" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                  <Input id="last-name" placeholder="Robinson" value={lastName} onChange={(e) => setLastName(e.target.value)} required disabled={isLoading}/>
                 </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading}/>
               </div>
               <div className="grid gap-2">
                   <Label htmlFor="password">Contraseña</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isLoading}/>
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {emailLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Crear Cuenta
               </Button>
               <div className="relative">
@@ -154,7 +173,7 @@ export default function RegisterPage() {
                 </div>
               </div>
               <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                {googleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Registrarse con Google
               </Button>
             </CardContent>
