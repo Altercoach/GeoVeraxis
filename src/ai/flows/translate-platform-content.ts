@@ -32,7 +32,12 @@ const translatePlatformContentPrompt = ai.definePrompt({
   name: 'translatePlatformContentPrompt',
   input: {schema: TranslatePlatformContentInputSchema},
   output: {schema: TranslatePlatformContentOutputSchema},
-  prompt: `Translate the following text to {{targetLanguage}}:\n\n{{text}}`,
+  prompt: `You are a professional translator specializing in legal and real estate terminology. Translate the following text to {{targetLanguage}} accurately.
+  
+  Text to translate:
+  '''
+  {{{text}}}
+  '''`,
 });
 
 const translatePlatformContentFlow = ai.defineFlow(

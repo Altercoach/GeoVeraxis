@@ -112,11 +112,11 @@ export function Translator() {
                 <Card className="min-h-[150px] bg-muted/50">
                     <CardContent className="p-4">
                         {isLoading ? (
-                            <div className="flex justify-center items-center h-full">
+                            <div className="flex justify-center items-center h-full min-h-[126px]">
                                 <Loader2 className="h-6 w-6 animate-spin text-primary"/>
                             </div>
                         ) : (
-                            <p className="text-sm">{translatedText || 'Translation will appear here...'}</p>
+                            <p className="text-sm min-h-[126px]">{translatedText || 'Translation will appear here...'}</p>
                         )}
                     </CardContent>
                 </Card>
