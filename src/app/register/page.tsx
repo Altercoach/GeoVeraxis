@@ -62,12 +62,11 @@ export default function RegisterPage() {
   const { signUpWithEmail, signInWithGoogle, user, loading } = useAuthHook();
   const router = useRouter();
   const { toast } = useToast();
-  const [emailLoading, setEmailLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -78,7 +77,7 @@ export default function RegisterPage() {
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setEmailLoading(true);
+    setIsSubmitting(true);
     try {
       await signUpWithEmail(email, password, `${firstName} ${lastName}`);
       // Let the useEffect handle redirection
@@ -90,16 +89,15 @@ export default function RegisterPage() {
       });
       console.error(error);
     } finally {
-      setEmailLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
+    setIsSubmitting(true);
     try {
       await signInWithGoogle();
-       // The user will be redirected to Google, and then back.
-      // The `useEffect` will handle the navigation to the dashboard.
+       // The redirect flow is handled by the useAuthHook
     } catch (error) {
       toast({
         variant: "destructive",
@@ -107,20 +105,19 @@ export default function RegisterPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
-      setGoogleLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const isLoading = emailLoading || googleLoading || loading;
+  const isLoading = loading || isSubmitting;
 
-  if (loading) {
+  if (loading && !isSubmitting) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
         </div>
     )
   }
-
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
@@ -159,7 +156,7 @@ export default function RegisterPage() {
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isLoading}/>
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {emailLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Crear Cuenta
               </Button>
               <div className="relative">
@@ -173,7 +170,7 @@ export default function RegisterPage() {
                 </div>
               </div>
               <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
-                {googleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Registrarse con Google
               </Button>
             </CardContent>

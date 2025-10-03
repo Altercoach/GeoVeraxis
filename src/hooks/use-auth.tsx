@@ -39,26 +39,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     getRedirectResult(auth).then(async (result) => {
       if (result) {
+        setLoading(true);
         const user = result.user;
-        // Create user document in Firestore
+        // Create user document in Firestore for Google Sign-In
         const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
         const lastName = lastNameParts.join(' ');
         
         await setDoc(doc(firestore, "users", user.uid), {
             id: user.uid,
-            firstName: firstName,
-            lastName: lastName,
+            firstName: firstName || 'User',
+            lastName: lastName || '',
             email: user.email,
-            role: "Client" 
+            role: "Client" // Default role
         }, { merge: true });
+        setUser(user);
+        setLoading(false);
       }
-    }).catch(console.error);
-
+    }).catch(error => {
+        console.error("Error getting redirect result:", error);
+        setLoading(false);
+    });
 
     return () => unsubscribe();
   }, [auth, firestore]);
 
   const signInWithGoogle = async () => {
+    setLoading(true);
     const provider = new GoogleAuthProvider();
     await signInWithRedirect(auth, provider);
   };
@@ -66,21 +72,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-    if(user) {
-        await updateProfile(user, { displayName });
-        
-        const [firstName, ...lastNameParts] = displayName.split(' ');
-        const lastName = lastNameParts.join(' ');
+    await updateProfile(user, { displayName });
+    
+    const [firstName, ...lastNameParts] = displayName.split(' ');
+    const lastName = lastNameParts.join(' ');
 
-        // Create user document in Firestore
-        await setDoc(doc(firestore, "users", user.uid), {
-            id: user.uid,
-            firstName: firstName,
-            lastName: lastName,
-            email: user.email,
-            role: "Client"
-        });
-    }
+    // Create user document in Firestore for Email Sign-Up
+    await setDoc(doc(firestore, "users", user.uid), {
+        id: user.uid,
+        firstName: firstName,
+        lastName: lastName,
+        email: user.email,
+        role: "Client"
+    });
+    // onAuthStateChanged will handle setting the user state
   };
 
   const signInWithEmail = async (email: string, password: string) => {
@@ -89,6 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     await firebaseSignOut(auth);
+    setUser(null);
   };
 
   return (
