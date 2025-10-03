@@ -18,12 +18,10 @@ export function middleware(request: NextRequest) {
   const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
   const isRootPath = pathname === '/';
 
-  // Si el usuario está autenticado y trata de acceder a una ruta pública como login/register,
+  // Si el usuario está autenticado y trata de acceder a una ruta pública como login/register/pricing/payment,
   // redirigirlo al dashboard.
-  if (authToken && (isPublicPath || isRootPath)) {
-    if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
+  if (authToken && isPublicPath) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // Permitir el acceso a la página de inicio (landing page) sin autenticación
