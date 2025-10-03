@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { 
-  Auth,
   onAuthStateChanged,
   User,
   GoogleAuthProvider,
@@ -12,8 +11,7 @@ import {
   signOut as firebaseSignOut,
   updateProfile,
 } from 'firebase/auth';
-import { useFirebase } from '@/components/firebase-provider';
-import { Loader2 } from 'lucide-react';
+import { useFirebase } from '@/firebase';
 
 interface AuthContextType {
   user: User | null;
