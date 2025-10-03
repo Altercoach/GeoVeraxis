@@ -86,7 +86,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Logo />
           <span className="font-semibold text-lg font-jakarta">GeoVeraxis</span>
         </Link>
