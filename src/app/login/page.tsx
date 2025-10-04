@@ -69,41 +69,42 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   // This effect handles the result from a Google Sign-In redirect
   useEffect(() => {
-    if (auth) {
-        getRedirectResult(auth)
-        .then(async (result) => {
-            if (result && result.user) {
-            const user = result.user;
-            const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
-            const lastName = lastNameParts.join(' ');
-            
-            await setDoc(doc(firestore, "users", user.uid), {
-                id: user.uid,
-                firstName: firstName || 'User',
-                lastName: lastName || '',
-                email: user.email,
-                role: "Client"
-            }, { merge: true });
-            // The onAuthStateChanged listener in FirebaseProvider will handle the redirect
-            }
-        })
-        .catch((error) => {
-            // Only show toast if it's not a user-cancelled popup
-            if (error.code !== 'auth/popup-closed-by-user') {
-                console.error("Error getting redirect result:", error);
-                toast({
-                    variant: "destructive",
-                    title: "Error de inicio de sesión con Google",
-                    description: "No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.",
-                });
-            }
-        });
-    }
+    if (!auth) return;
+
+    const processRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          const user = result.user;
+          const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
+          const lastName = lastNameParts.join(' ');
+          
+          await setDoc(doc(firestore, "users", user.uid), {
+              id: user.uid,
+              firstName: firstName || 'User',
+              lastName: lastName || '',
+              email: user.email,
+              role: "Client"
+          }, { merge: true });
+        }
+      } catch (error: any) {
+        if (error.code !== 'auth/popup-closed-by-user') {
+            console.error("Error processing redirect result:", error);
+            toast({
+                variant: "destructive",
+                title: "Error de inicio de sesión con Google",
+                description: "No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.",
+            });
+        }
+      }
+    };
+    
+    processRedirectResult();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth, firestore]);
+  }, [auth]);
 
   // This effect redirects the user if they are logged in
   useEffect(() => {
@@ -116,8 +117,6 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithGoogle();
-      // After this, the page will redirect to Google, then back here.
-      // The useEffect above will handle the result.
     } catch (error) {
       toast({
         variant: "destructive",
@@ -125,7 +124,8 @@ export default function LoginPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
-      setIsSubmitting(false);
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
@@ -134,7 +134,6 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
-      // onAuthStateChanged will detect the user and the useEffect will redirect
     } catch (error) {
       toast({
         variant: "destructive",
@@ -149,7 +148,7 @@ export default function LoginPage() {
 
   const isLoading = authLoading || isSubmitting;
   
-  if (authLoading) {
+  if (authLoading && !user) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />

@@ -25,39 +25,28 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { auth, firestore, user, isUserLoading } = useFirebase();
+  const { user, isUserLoading, auth, firestore } = useFirebase();
 
   const signInWithGoogle = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      // Use signInWithRedirect instead of signInWithPopup
-      await signInWithRedirect(auth, provider);
-    } catch (error) {
-        console.error("Error initiating Google sign-in:", error);
-        throw error;
-    }
+    const provider = new GoogleAuthProvider();
+    await signInWithRedirect(auth, provider);
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        await updateProfile(user, { displayName });
-        
-        const [firstName, ...lastNameParts] = displayName.split(' ');
-        const lastName = lastNameParts.join(' ');
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    await updateProfile(user, { displayName });
+    
+    const [firstName, ...lastNameParts] = displayName.split(' ');
+    const lastName = lastNameParts.join(' ');
 
-        await setDoc(doc(firestore, "users", user.uid), {
-            id: user.uid,
-            firstName: firstName || 'User',
-            lastName: lastName || '',
-            email: user.email,
-            role: "Client"
-        }, { merge: true });
-    } catch (error) {
-        console.error("Error signing up with email:", error);
-        throw error;
-    }
+    await setDoc(doc(firestore, "users", user.uid), {
+        id: user.uid,
+        firstName: firstName || 'User',
+        lastName: lastName || '',
+        email: user.email,
+        role: "Client"
+    }, { merge: true });
   };
 
   const signInWithEmail = async (email: string, password: string) => {
@@ -68,7 +57,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await firebaseSignOut(auth);
   };
 
-  const value = { user, loading: isUserLoading, signInWithGoogle, signUpWithEmail, signInWithEmail, signOut };
+  const value = { 
+    user, 
+    loading: isUserLoading, 
+    signInWithGoogle, 
+    signUpWithEmail, 
+    signInWithEmail, 
+    signOut 
+  };
 
   return (
     <AuthContext.Provider value={value}>
