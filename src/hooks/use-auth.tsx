@@ -1,10 +1,11 @@
 'use client';
 
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useEffect } from 'react';
 import { 
   User,
   GoogleAuthProvider,
   signInWithRedirect,
+  getRedirectResult,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -25,13 +26,37 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { user, isUserLoading, auth, firestore } = useFirebase();
+  const { user, loading, auth, firestore } = useFirebase();
+
+  useEffect(() => {
+    if (!auth || !firestore) return;
+
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result && result.user) {
+          const user = result.user;
+          const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
+          const lastName = lastNameParts.join(' ');
+          
+          await setDoc(doc(firestore, "users", user.uid), {
+              id: user.uid,
+              firstName: firstName || 'User',
+              lastName: lastName || '',
+              email: user.email,
+              role: "Client"
+          }, { merge: true });
+        }
+      })
+      .catch((error) => {
+         if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+            console.error("Error processing redirect result:", error);
+         }
+      });
+  }, [auth, firestore]);
 
   const signInWithGoogle = async () => {
+    if (!auth) throw new Error("Auth service not initialized");
     const provider = new GoogleAuthProvider();
-    // It's important to set persistence if you want the user to stay logged in.
-    // However, the default is 'local', so we don't need to explicitly set it
-    // unless we want 'session' or 'none'.
     await signInWithRedirect(auth, provider);
   };
   
@@ -46,27 +71,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [firstName, ...lastNameParts] = displayName.split(' ');
     const lastName = lastNameParts.join(' ');
 
-    // Create a user document in Firestore
     await setDoc(doc(firestore, "users", user.uid), {
         id: user.uid,
         firstName: firstName || 'User',
         lastName: lastName || '',
         email: user.email,
-        role: "Client" // Default role
+        role: "Client"
     }, { merge: true });
   };
 
   const signInWithEmail = async (email: string, password: string) => {
+    if (!auth) throw new Error("Auth service not initialized");
     await signInWithEmailAndPassword(auth, email, password);
   };
 
   const signOut = async () => {
+    if (!auth) throw new Error("Auth service not initialized");
     await firebaseSignOut(auth);
   };
 
   const value = { 
     user, 
-    loading: isUserLoading, 
+    loading, 
     signInWithGoogle, 
     signUpWithEmail, 
     signInWithEmail, 
