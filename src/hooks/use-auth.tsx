@@ -12,16 +12,10 @@ import {
 import { useFirebase } from '@/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useToast } from './use-toast';
-import { useState } from 'react';
 
-// This hook no longer uses a context provider.
-// It directly uses the central `useFirebase` hook.
 export const useAuthHook = () => {
   const { auth, firestore, user, loading } = useFirebase();
   const { toast } = useToast();
-  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
-
 
   const signInWithGoogle = async () => {
     if (!auth || !firestore) {
@@ -32,7 +26,7 @@ export const useAuthHook = () => {
       });
       return;
     }
-    setIsGoogleSubmitting(true);
+    
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -53,7 +47,6 @@ export const useAuthHook = () => {
           role: "Client"
         }, { merge: true });
       }
-      // Redirection is handled by the page's useEffect
     } catch (error: any) {
        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         console.error("Google Sign-In Error:", error);
@@ -63,8 +56,6 @@ export const useAuthHook = () => {
           description: "No se pudo iniciar sesión. Por favor, inténtalo de nuevo.",
         });
       }
-    } finally {
-      setIsGoogleSubmitting(false);
     }
   };
   
@@ -77,7 +68,7 @@ export const useAuthHook = () => {
       });
       return;
     }
-    setIsEmailSubmitting(true);
+    
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const createdUser = userCredential.user;
@@ -93,7 +84,6 @@ export const useAuthHook = () => {
             email: createdUser.email,
             role: "Client"
         }, { merge: true });
-        // Redirection is handled by the page's useEffect
     } catch (error: any) {
         let description = "No se pudo crear la cuenta. Inténtalo de nuevo.";
         if (error.code === 'auth/email-already-in-use') {
@@ -104,8 +94,6 @@ export const useAuthHook = () => {
             title: "Error de registro",
             description: description,
         });
-    } finally {
-        setIsEmailSubmitting(false);
     }
   };
 
@@ -118,18 +106,15 @@ export const useAuthHook = () => {
         });
         return;
     }
-    setIsEmailSubmitting(true);
+    
     try {
       await signInWithEmailAndPassword(auth, email, password);
-       // Redirection is handled by the page's useEffect
     } catch (error: any) {
         toast({
             variant: "destructive",
             title: "Error de inicio de sesión",
             description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
         });
-    } finally {
-        setIsEmailSubmitting(false);
     }
   };
 
@@ -148,8 +133,6 @@ export const useAuthHook = () => {
   return { 
     user, 
     loading, 
-    isEmailSubmitting,
-    isGoogleSubmitting,
     signInWithGoogle, 
     signUpWithEmail, 
     signInWithEmail, 

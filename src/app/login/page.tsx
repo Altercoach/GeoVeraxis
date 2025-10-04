@@ -58,10 +58,12 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithGoogle, signInWithEmail, user, loading, isEmailSubmitting, isGoogleSubmitting } = useAuthHook();
+  const { signInWithGoogle, signInWithEmail, user, loading } = useAuthHook();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   
   useEffect(() => {
     if (!loading && user) {
@@ -71,10 +73,17 @@ export default function LoginPage() {
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsEmailSubmitting(true);
     await signInWithEmail(email, password);
+    setIsEmailSubmitting(false);
   };
+  
+  const handleGoogleSignIn = async () => {
+    setIsGoogleSubmitting(true);
+    await signInWithGoogle();
+    setIsGoogleSubmitting(false);
+  }
 
-  // While firebase is determining auth state, show a loader
   if (loading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
@@ -103,7 +112,7 @@ export default function LoginPage() {
           </CardHeader>
           <form onSubmit={handleEmailSignIn}>
             <CardContent className="grid gap-4">
-              <Button variant="outline" className="w-full" type="button" onClick={signInWithGoogle} disabled={isSubmitting}>
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
                 {isGoogleSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Iniciar sesión con Google
               </Button>
