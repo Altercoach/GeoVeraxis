@@ -86,7 +86,8 @@ export default function LoginPage() {
           description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
         });
       }
-      setIsGoogleSubmitting(false);
+    } finally {
+        setIsGoogleSubmitting(false);
     }
   };
 
@@ -107,6 +108,7 @@ export default function LoginPage() {
     }
   };
 
+  // While firebase is determining auth state, show a loader
   if (loading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
