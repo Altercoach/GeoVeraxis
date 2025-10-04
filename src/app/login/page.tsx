@@ -64,7 +64,8 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   
   useEffect(() => {
     if (user) {
@@ -73,7 +74,7 @@ export default function LoginPage() {
   }, [user, router]);
 
   const handleGoogleSignIn = async () => {
-    setIsSubmitting(true);
+    setIsGoogleSubmitting(true);
     try {
       await signInWithGoogle();
       // Redirection will be handled by Firebase, and the auth state change
@@ -87,13 +88,13 @@ export default function LoginPage() {
         });
         console.error(error);
       }
-      setIsSubmitting(false);
+      setIsGoogleSubmitting(false);
     }
   };
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setIsEmailSubmitting(true);
     try {
       await signInWithEmail(email, password);
       // onAuthStateChanged will detect the user and the useEffect above will redirect
@@ -104,7 +105,7 @@ export default function LoginPage() {
         description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
       });
       console.error(error);
-      setIsSubmitting(false);
+      setIsEmailSubmitting(false);
     }
   };
 
@@ -115,6 +116,8 @@ export default function LoginPage() {
         </div>
     )
   }
+  
+  const isSubmitting = isEmailSubmitting || isGoogleSubmitting;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
@@ -135,7 +138,7 @@ export default function LoginPage() {
           <form onSubmit={handleEmailSignIn}>
             <CardContent className="grid gap-4">
               <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                {isGoogleSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Iniciar sesión con Google
               </Button>
               <div className="relative">
@@ -165,7 +168,7 @@ export default function LoginPage() {
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isSubmitting} autoComplete="current-password" />
               </div>
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isEmailSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Iniciar Sesión
               </Button>
             </CardContent>
