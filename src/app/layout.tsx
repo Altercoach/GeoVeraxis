@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { FirebaseProvider } from "@/lib/firebase/provider";
-import { app, auth, db } from "@/lib/firebase/config";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/hooks/use-auth";
+import { AdminProvider } from "@/hooks/use-admin";
+import { FirebaseClientProvider } from "@/firebase/client-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +29,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <FirebaseProvider firebaseApp={app} firestore={db} auth={auth}>
-            {children}
-          </FirebaseProvider>
+          <FirebaseClientProvider>
+            <AuthProvider>
+                <AdminProvider>
+                    {children}
+                </AdminProvider>
+            </AuthProvider>
+          </FirebaseClientProvider>
           <Toaster />
         </ThemeProvider>
       </body>
