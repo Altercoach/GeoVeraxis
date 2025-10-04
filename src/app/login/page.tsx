@@ -69,49 +69,55 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
 
+  // This effect handles the result from a Google Sign-In redirect
   useEffect(() => {
-    getRedirectResult(auth)
-      .then(async (result) => {
-        if (result && result.user) {
-          const user = result.user;
-          const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
-          const lastName = lastNameParts.join(' ');
-          
-          await setDoc(doc(firestore, "users", user.uid), {
-              id: user.uid,
-              firstName: firstName || 'User',
-              lastName: lastName || '',
-              email: user.email,
-              role: "Client"
-          }, { merge: true });
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting redirect result:", error);
-        toast({
-            variant: "destructive",
-            title: "Error de inicio de sesión con Google",
-            description: "No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.",
+    if (auth) {
+        getRedirectResult(auth)
+        .then(async (result) => {
+            if (result && result.user) {
+            const user = result.user;
+            const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
+            const lastName = lastNameParts.join(' ');
+            
+            await setDoc(doc(firestore, "users", user.uid), {
+                id: user.uid,
+                firstName: firstName || 'User',
+                lastName: lastName || '',
+                email: user.email,
+                role: "Client"
+            }, { merge: true });
+            // The onAuthStateChanged listener in FirebaseProvider will handle the redirect
+            }
+        })
+        .catch((error) => {
+            // Only show toast if it's not a user-cancelled popup
+            if (error.code !== 'auth/popup-closed-by-user') {
+                console.error("Error getting redirect result:", error);
+                toast({
+                    variant: "destructive",
+                    title: "Error de inicio de sesión con Google",
+                    description: "No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.",
+                });
+            }
         });
-      })
-      .finally(() => {
-        setIsProcessingRedirect(false);
-      });
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth, firestore]);
 
+  // This effect redirects the user if they are logged in
   useEffect(() => {
-    if (!isProcessingRedirect && user) {
+    if (user) {
       router.push('/dashboard');
     }
-  }, [user, isProcessingRedirect, router]);
+  }, [user, router]);
 
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
       await signInWithGoogle();
+      // After this, the page will redirect to Google, then back here.
+      // The useEffect above will handle the result.
     } catch (error) {
       toast({
         variant: "destructive",
@@ -128,6 +134,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
+      // onAuthStateChanged will detect the user and the useEffect will redirect
     } catch (error) {
       toast({
         variant: "destructive",
@@ -140,9 +147,9 @@ export default function LoginPage() {
     }
   };
 
-  const isLoading = authLoading || isSubmitting || isProcessingRedirect;
+  const isLoading = authLoading || isSubmitting;
   
-  if (isLoading) {
+  if (authLoading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -150,7 +157,7 @@ export default function LoginPage() {
     )
   }
 
-  // If we are done loading and the user is somehow still here, show the form.
+  // If we are done loading and there is no user, show the form.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md mx-auto p-4">
@@ -169,8 +176,8 @@ export default function LoginPage() {
           </CardHeader>
           <form onSubmit={handleEmailSignIn}>
             <CardContent className="grid gap-4">
-              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Iniciar sesión con Google
               </Button>
               <div className="relative">
@@ -185,7 +192,7 @@ export default function LoginPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isSubmitting} />
+                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
@@ -197,10 +204,10 @@ export default function LoginPage() {
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isSubmitting} />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isLoading} />
               </div>
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Iniciar Sesión
               </Button>
             </CardContent>

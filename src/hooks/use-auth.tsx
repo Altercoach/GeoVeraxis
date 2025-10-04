@@ -4,7 +4,7 @@ import { createContext, useContext, ReactNode } from 'react';
 import { 
   User,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -30,22 +30,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      const user = userCredential.user;
-
-      const displayName = user.displayName || '';
-      const [firstName, ...lastNameParts] = displayName.split(' ');
-      const lastName = lastNameParts.join(' ');
-
-      await setDoc(doc(firestore, "users", user.uid), {
-          id: user.uid,
-          firstName: firstName,
-          lastName: lastName,
-          email: user.email,
-          role: "Client" // Reverted to Client
-      }, { merge: true });
+      // Use signInWithRedirect instead of signInWithPopup
+      await signInWithRedirect(auth, provider);
     } catch (error) {
-        console.error("Error signing in with Google:", error);
+        console.error("Error initiating Google sign-in:", error);
         throw error;
     }
   };
@@ -61,10 +49,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         await setDoc(doc(firestore, "users", user.uid), {
             id: user.uid,
-            firstName: firstName,
-            lastName: lastName,
+            firstName: firstName || 'User',
+            lastName: lastName || '',
             email: user.email,
-            role: "Client" // Reverted to Client
+            role: "Client"
         }, { merge: true });
     } catch (error) {
         console.error("Error signing up with email:", error);
