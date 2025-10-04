@@ -59,7 +59,7 @@ const Logo = () => (
 );
 
 export default function RegisterPage() {
-  const { signUpWithEmail, signInWithGoogle, user, loading } = useAuthHook();
+  const { signUpWithEmail, signInWithGoogle, user, loading: authLoading } = useAuthHook();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -69,8 +69,6 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // If the user is already logged in, redirect them to the dashboard.
-    // This handles cases where the user navigates back to the register page.
     if (user) {
       router.push('/dashboard');
     }
@@ -90,8 +88,6 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       await signUpWithEmail(email, password, `${firstName} ${lastName}`);
-      // On success, the onAuthStateChanged listener will handle the user state
-      // and the useEffect above will trigger the redirect.
     } catch (error) {
       toast({
         variant: "destructive",
@@ -107,7 +103,6 @@ export default function RegisterPage() {
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
-      // This will trigger the redirect. The result is handled on the login page.
       await signInWithGoogle();
     } catch (error) {
       toast({
@@ -116,16 +111,13 @@ export default function RegisterPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
-      // We don't set isSubmitting to false here because a redirect is in progress.
-      // If it fails, the user will remain on the page and can try again.
+      setIsSubmitting(false);
     }
   };
 
-  // The main 'loading' state comes from the auth provider, which tracks the initial
-  // auth state check. 'isSubmitting' is for actions initiated on this page.
-  const isLoading = loading || isSubmitting;
+  const isLoading = authLoading || isSubmitting;
 
-  if (isLoading || user) {
+  if (isLoading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -154,22 +146,22 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="first-name">Nombre</Label>
-                  <Input id="first-name" placeholder="Max" value={firstName} onChange={(e) => setFirstName(e.target.value)} required disabled={isLoading}/>
+                  <Input id="first-name" placeholder="Max" value={firstName} onChange={(e) => setFirstName(e.target.value)} required disabled={isSubmitting}/>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="last-name">Apellidos</Label>
-                  <Input id="last-name" placeholder="Robinson" value={lastName} onChange={(e) => setLastName(e.target.value)} required disabled={isLoading}/>
+                  <Input id="last-name" placeholder="Robinson" value={lastName} onChange={(e) => setLastName(e.target.value)} required disabled={isSubmitting}/>
                 </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading}/>
+                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isSubmitting}/>
               </div>
               <div className="grid gap-2">
                   <Label htmlFor="password">Contraseña</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isLoading}/>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isSubmitting}/>
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Crear Cuenta
               </Button>
@@ -183,7 +175,7 @@ export default function RegisterPage() {
                   </span>
                 </div>
               </div>
-              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Registrarse con Google
               </Button>

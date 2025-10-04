@@ -62,7 +62,7 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithGoogle, signInWithEmail, user, loading } = useAuthHook();
+  const { signInWithGoogle, signInWithEmail, user, loading: authLoading } = useAuthHook();
   const { auth, firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
@@ -72,27 +72,20 @@ export default function LoginPage() {
   const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
 
   useEffect(() => {
-    // This effect runs once on component mount to handle the redirect result from Google
     getRedirectResult(auth)
       .then(async (result) => {
-        if (result) {
-          // User successfully signed in via redirect.
+        if (result && result.user) {
           const user = result.user;
           const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
           const lastName = lastNameParts.join(' ');
           
-          // Ensure user document is created/updated in Firestore.
-          // Using merge: true prevents overwriting data if the user already exists.
           await setDoc(doc(firestore, "users", user.uid), {
               id: user.uid,
               firstName: firstName || 'User',
               lastName: lastName || '',
               email: user.email,
-              role: "Client" // Assign a default role
+              role: "Client"
           }, { merge: true });
-          
-          // The onAuthStateChanged listener in FirebaseProvider will detect the user
-          // and the redirect to the dashboard will be handled there.
         }
       })
       .catch((error) => {
@@ -104,23 +97,20 @@ export default function LoginPage() {
         });
       })
       .finally(() => {
-        // Stop the redirect processing indicator after attempt, success or fail
         setIsProcessingRedirect(false);
       });
-  // The empty dependency array ensures this effect runs only ONCE.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth, firestore, toast]);
+  }, [auth, firestore]);
 
   useEffect(() => {
-    if (user) {
+    if (!isProcessingRedirect && user) {
       router.push('/dashboard');
     }
-  }, [user, router]);
+  }, [user, isProcessingRedirect, router]);
 
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
-      // This will trigger the redirect, the rest of the logic is in the effect above
       await signInWithGoogle();
     } catch (error) {
       toast({
@@ -138,7 +128,6 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
-      // On success, the onAuthStateChanged listener will handle the redirect
     } catch (error) {
       toast({
         variant: "destructive",
@@ -151,10 +140,9 @@ export default function LoginPage() {
     }
   };
 
-  // Combine all loading states for a single loading indicator
-  const isLoading = loading || isSubmitting || isProcessingRedirect;
+  const isLoading = authLoading || isSubmitting || isProcessingRedirect;
   
-  if (isLoading || user) {
+  if (isLoading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -162,6 +150,7 @@ export default function LoginPage() {
     )
   }
 
+  // If we are done loading and the user is somehow still here, show the form.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md mx-auto p-4">
@@ -180,8 +169,8 @@ export default function LoginPage() {
           </CardHeader>
           <form onSubmit={handleEmailSignIn}>
             <CardContent className="grid gap-4">
-              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
-                <GoogleIcon className="mr-2 h-4 w-4" />
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Iniciar sesión con Google
               </Button>
               <div className="relative">
@@ -196,7 +185,7 @@ export default function LoginPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
+                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isSubmitting} />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
@@ -208,10 +197,10 @@ export default function LoginPage() {
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isLoading} />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isSubmitting} />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Iniciar Sesión
               </Button>
             </CardContent>
