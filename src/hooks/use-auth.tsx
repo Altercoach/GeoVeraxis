@@ -30,8 +30,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     console.log('[AuthProvider] useEffect for getRedirectResult started.');
-    if (!auth || !firestore) {
-        console.log('[AuthProvider] Auth or Firestore not ready, skipping getRedirectResult.');
+    if (!auth || !firestore || loading) {
+        console.log('[AuthProvider] Auth/Firestore not ready or still loading, skipping getRedirectResult.');
         return;
     };
 
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log("[AuthProvider] Redirect popup closed by user.");
          }
       });
-  }, [auth, firestore]);
+  }, [auth, firestore, loading]);
 
   const signInWithGoogle = async () => {
     console.log('[useAuth] signInWithGoogle initiated.');
