@@ -99,7 +99,8 @@ export default function RegisterPage() {
         title: "Error de registro",
         description: description,
       });
-      setIsEmailSubmitting(false);
+    } finally {
+        setIsEmailSubmitting(false);
     }
   };
 

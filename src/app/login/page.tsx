@@ -77,7 +77,7 @@ export default function LoginPage() {
     setIsGoogleSubmitting(true);
     try {
       await signInWithGoogle();
-      // Redirect is handled by the useEffect hook
+      // Redirect is handled by the useEffect hook after onAuthStateChanged fires
     } catch (error: any) {
       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         toast({
@@ -102,6 +102,7 @@ export default function LoginPage() {
         title: "Error de inicio de sesión",
         description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
       });
+    } finally {
       setIsEmailSubmitting(false);
     }
   };
