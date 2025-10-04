@@ -78,7 +78,7 @@ export function LandingPage() {
             {/* Hero Section */}
             <section className="relative h-screen flex items-center justify-center text-center">
                <video 
-                    src="https://videos.pexels.com/video-files/8327855/8327855-hd_1920_1080_30fps.mp4"
+                    src="https://videos.pexels.com/video-files/3209828/3209828-hd_1920_1080_25fps.mp4"
                     autoPlay 
                     loop 
                     muted 
