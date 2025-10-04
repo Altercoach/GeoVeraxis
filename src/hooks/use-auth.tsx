@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, ReactNode, useEffect } from 'react';
+import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { 
   User,
   GoogleAuthProvider,
@@ -16,7 +16,7 @@ import { doc, setDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
+  loading: boolean; // Renamed from isUserLoading for clarity
   signInWithGoogle: () => Promise<void>;
   signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -26,38 +26,34 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { user, loading, auth, firestore } = useFirebase();
+  const { auth, firestore, user, loading } = useFirebase();
 
   useEffect(() => {
-    // Only run if auth and firestore are available and not in the initial loading state.
-    if (!auth || !firestore || loading) {
-      return;
-    };
-
-    // This effect handles the user creation in Firestore after a Google sign-in redirect.
-    getRedirectResult(auth)
-      .then(async (result) => {
-        if (result && result.user) {
-          const user = result.user;
-          const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
-          const lastName = lastNameParts.join(' ');
-          
-          await setDoc(doc(firestore, "users", user.uid), {
-              id: user.uid,
-              firstName: firstName || 'User',
-              lastName: lastName || '',
-              email: user.email,
-              role: "Client"
-          }, { merge: true });
-        }
-      })
-      .catch((error) => {
-         // Avoid logging errors for benign actions like closing the popup.
-         if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-            console.error("[AuthProvider] Error processing redirect result:", error);
-         }
-      });
-  }, [auth, firestore, loading]); // Dependencies ensure this runs when services are ready.
+    // This effect handles user creation in Firestore after a Google sign-in redirect.
+    if (!loading && auth && firestore) {
+      getRedirectResult(auth)
+        .then(async (result) => {
+          if (result && result.user) {
+            const firestoreUser = result.user;
+            const [firstName, ...lastNameParts] = firestoreUser.displayName?.split(' ') || ['', ''];
+            const lastName = lastNameParts.join(' ');
+            
+            await setDoc(doc(firestore, "users", firestoreUser.uid), {
+                id: firestoreUser.uid,
+                firstName: firstName || 'User',
+                lastName: lastName || '',
+                email: firestoreUser.email,
+                role: "Client"
+            }, { merge: true });
+          }
+        })
+        .catch((error) => {
+           if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+              console.error("[AuthProvider] Error processing redirect result:", error);
+           }
+        });
+    }
+  }, [auth, firestore, loading]);
 
   const signInWithGoogle = async () => {
     if (!auth) throw new Error("Auth service not initialized");
@@ -70,18 +66,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error("Firebase not initialized");
     }
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    await updateProfile(user, { displayName });
+    const createdUser = userCredential.user;
+    await updateProfile(createdUser, { displayName });
     
     const [firstName, ...lastNameParts] = displayName.split(' ');
     const lastName = lastNameParts.join(' ');
 
-    // Create user document in Firestore.
-    await setDoc(doc(firestore, "users", user.uid), {
-        id: user.uid,
+    await setDoc(doc(firestore, "users", createdUser.uid), {
+        id: createdUser.uid,
         firstName: firstName || 'User',
         lastName: lastName || '',
-        email: user.email,
+        email: createdUser.email,
         role: "Client"
     }, { merge: true });
   };

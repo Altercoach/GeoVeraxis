@@ -106,9 +106,7 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
               {loading ? (
-                  <Avatar>
-                      <AvatarFallback><Loader2 className="animate-spin" /></AvatarFallback>
-                  </Avatar>
+                  <Loader2 className="h-4 w-4 animate-spin" />
               ) : user ? (
                 <Avatar>
                   {user.photoURL && <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />}
