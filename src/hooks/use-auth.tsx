@@ -1,10 +1,9 @@
 'use client';
 
-import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { 
   User,
   GoogleAuthProvider,
-  signInWithPopup, // Changed from redirect to popup
+  signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -12,23 +11,28 @@ import {
 } from 'firebase/auth';
 import { useFirebase } from '@/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { useToast } from './use-toast';
+import { useState } from 'react';
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  signInWithGoogle: () => Promise<void>;
-  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+// This hook no longer uses a context provider.
+// It directly uses the central `useFirebase` hook.
+export const useAuthHook = () => {
   const { auth, firestore, user, loading } = useFirebase();
+  const { toast } = useToast();
+  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+
 
   const signInWithGoogle = async () => {
-    if (!auth || !firestore) throw new Error("Auth or Firestore service not initialized");
+    if (!auth || !firestore) {
+      toast({
+        variant: "destructive",
+        title: "Error de configuración",
+        description: "Los servicios de Firebase no están disponibles.",
+      });
+      return;
+    }
+    setIsGoogleSubmitting(true);
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -49,64 +53,106 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           role: "Client"
         }, { merge: true });
       }
+      // Redirection is handled by the page's useEffect
     } catch (error: any) {
        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         console.error("Google Sign-In Error:", error);
-        throw error;
+         toast({
+          variant: "destructive",
+          title: "Error de inicio de sesión con Google",
+          description: "No se pudo iniciar sesión. Por favor, inténtalo de nuevo.",
+        });
       }
+    } finally {
+      setIsGoogleSubmitting(false);
     }
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
     if (!firestore || !auth) {
-        throw new Error("Firebase not initialized");
+       toast({
+        variant: "destructive",
+        title: "Error de configuración",
+        description: "Los servicios de Firebase no están disponibles.",
+      });
+      return;
     }
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const createdUser = userCredential.user;
-    await updateProfile(createdUser, { displayName });
-    
-    const [firstName, ...lastNameParts] = displayName.split(' ');
-    const lastName = lastNameParts.join(' ');
+    setIsEmailSubmitting(true);
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const createdUser = userCredential.user;
+        await updateProfile(createdUser, { displayName });
+        
+        const [firstName, ...lastNameParts] = displayName.split(' ');
+        const lastName = lastNameParts.join(' ');
 
-    await setDoc(doc(firestore, "users", createdUser.uid), {
-        id: createdUser.uid,
-        firstName: firstName || 'User',
-        lastName: lastName || '',
-        email: createdUser.email,
-        role: "Client"
-    }, { merge: true });
+        await setDoc(doc(firestore, "users", createdUser.uid), {
+            id: createdUser.uid,
+            firstName: firstName || 'User',
+            lastName: lastName || '',
+            email: createdUser.email,
+            role: "Client"
+        }, { merge: true });
+        // Redirection is handled by the page's useEffect
+    } catch (error: any) {
+        let description = "No se pudo crear la cuenta. Inténtalo de nuevo.";
+        if (error.code === 'auth/email-already-in-use') {
+            description = "Este correo electrónico ya está en uso. Por favor, inicia sesión o utiliza otro correo.";
+        }
+         toast({
+            variant: "destructive",
+            title: "Error de registro",
+            description: description,
+        });
+    } finally {
+        setIsEmailSubmitting(false);
+    }
   };
 
   const signInWithEmail = async (email: string, password: string) => {
-    if (!auth) throw new Error("Auth service not initialized");
-    await signInWithEmailAndPassword(auth, email, password);
+    if (!auth) {
+        toast({
+            variant: "destructive",
+            title: "Error de configuración",
+            description: "El servicio de autenticación no está disponible.",
+        });
+        return;
+    }
+    setIsEmailSubmitting(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+       // Redirection is handled by the page's useEffect
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Error de inicio de sesión",
+            description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
+        });
+    } finally {
+        setIsEmailSubmitting(false);
+    }
   };
 
   const signOut = async () => {
-    if (!auth) throw new Error("Auth service not initialized");
+    if (!auth) {
+       toast({
+            variant: "destructive",
+            title: "Error de configuración",
+            description: "El servicio de autenticación no está disponible.",
+        });
+      return;
+    }
     await firebaseSignOut(auth);
   };
 
-  const value = { 
+  return { 
     user, 
     loading, 
+    isEmailSubmitting,
+    isGoogleSubmitting,
     signInWithGoogle, 
     signUpWithEmail, 
     signInWithEmail, 
     signOut 
   };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuthHook = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuthHook must be used within an AuthProvider');
-  }
-  return context;
 };

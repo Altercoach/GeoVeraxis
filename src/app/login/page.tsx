@@ -16,7 +16,6 @@ import { useAuthHook } from "@/hooks/use-auth";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
@@ -59,13 +58,10 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithGoogle, signInWithEmail, user, loading } = useAuthHook();
+  const { signInWithGoogle, signInWithEmail, user, loading, isEmailSubmitting, isGoogleSubmitting } = useAuthHook();
   const router = useRouter();
-  const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   
   useEffect(() => {
     if (!loading && user) {
@@ -73,39 +69,9 @@ export default function LoginPage() {
     }
   }, [user, loading, router]);
 
-  const handleGoogleSignIn = async () => {
-    setIsGoogleSubmitting(true);
-    try {
-      await signInWithGoogle();
-      // Redirect is handled by the useEffect hook after onAuthStateChanged fires
-    } catch (error: any) {
-      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        toast({
-          variant: "destructive",
-          title: "Error de inicio de sesión",
-          description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
-        });
-      }
-    } finally {
-        setIsGoogleSubmitting(false);
-    }
-  };
-
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsEmailSubmitting(true);
-    try {
-      await signInWithEmail(email, password);
-      // Redirect is handled by the useEffect hook
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error de inicio de sesión",
-        description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
-      });
-    } finally {
-      setIsEmailSubmitting(false);
-    }
+    await signInWithEmail(email, password);
   };
 
   // While firebase is determining auth state, show a loader
@@ -137,7 +103,7 @@ export default function LoginPage() {
           </CardHeader>
           <form onSubmit={handleEmailSignIn}>
             <CardContent className="grid gap-4">
-              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
+              <Button variant="outline" className="w-full" type="button" onClick={signInWithGoogle} disabled={isSubmitting}>
                 {isGoogleSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Iniciar sesión con Google
               </Button>
