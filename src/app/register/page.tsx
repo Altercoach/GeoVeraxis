@@ -66,7 +66,9 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+
 
   useEffect(() => {
     if (user) {
@@ -85,7 +87,7 @@ export default function RegisterPage() {
         });
         return;
     }
-    setIsSubmitting(true);
+    setIsEmailSubmitting(true);
     try {
       await signUpWithEmail(email, password, `${firstName} ${lastName}`);
       // onAuthStateChanged will detect the user and the useEffect will redirect
@@ -100,12 +102,12 @@ export default function RegisterPage() {
         description: description,
       });
       console.error(error);
-      setIsSubmitting(false);
+      setIsEmailSubmitting(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    setIsSubmitting(true);
+    setIsGoogleSubmitting(true);
     try {
       await signInWithGoogle();
       // After this, the page will redirect to Google, and the auth provider
@@ -119,7 +121,7 @@ export default function RegisterPage() {
         });
         console.error(error);
       }
-      setIsSubmitting(false);
+      setIsGoogleSubmitting(false);
     }
   };
 
@@ -130,6 +132,8 @@ export default function RegisterPage() {
         </div>
     )
   }
+
+  const isSubmitting = isEmailSubmitting || isGoogleSubmitting;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
@@ -168,7 +172,7 @@ export default function RegisterPage() {
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isSubmitting} autoComplete="new-password"/>
               </div>
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isEmailSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Crear Cuenta
               </Button>
               <div className="relative">
@@ -182,7 +186,7 @@ export default function RegisterPage() {
                 </div>
               </div>
               <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                {isGoogleSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Registrarse con Google
               </Button>
             </CardContent>
