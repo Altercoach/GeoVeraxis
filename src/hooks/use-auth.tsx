@@ -29,15 +29,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { user, loading, auth, firestore } = useFirebase();
 
   useEffect(() => {
-    if (!auth || !firestore) return;
+    console.log('[AuthProvider] useEffect for getRedirectResult started.');
+    if (!auth || !firestore) {
+        console.log('[AuthProvider] Auth or Firestore not ready, skipping getRedirectResult.');
+        return;
+    };
 
     getRedirectResult(auth)
       .then(async (result) => {
         if (result && result.user) {
+          console.log('[AuthProvider] getRedirectResult SUCCESS. User:', result.user.uid);
           const user = result.user;
           const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
           const lastName = lastNameParts.join(' ');
           
+          console.log(`[AuthProvider] Creating/merging user document for ${user.uid}`);
           await setDoc(doc(firestore, "users", user.uid), {
               id: user.uid,
               firstName: firstName || 'User',
@@ -45,32 +51,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: user.email,
               role: "Client"
           }, { merge: true });
+          console.log(`[AuthProvider] User document for ${user.uid} processed.`);
+        } else {
+            console.log('[AuthProvider] getRedirectResult: No user in result.');
         }
       })
       .catch((error) => {
          if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-            console.error("Error processing redirect result:", error);
+            console.error("[AuthProvider] Error processing redirect result:", error);
+         } else {
+            console.log("[AuthProvider] Redirect popup closed by user.");
          }
       });
   }, [auth, firestore]);
 
   const signInWithGoogle = async () => {
+    console.log('[useAuth] signInWithGoogle initiated.');
     if (!auth) throw new Error("Auth service not initialized");
     const provider = new GoogleAuthProvider();
     await signInWithRedirect(auth, provider);
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+    console.log(`[useAuth] signUpWithEmail for ${email} initiated.`);
     if (!firestore || !auth) {
         throw new Error("Firebase not initialized");
     }
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+    console.log(`[useAuth] User created with UID: ${user.uid}. Updating profile.`);
     await updateProfile(user, { displayName });
     
     const [firstName, ...lastNameParts] = displayName.split(' ');
     const lastName = lastNameParts.join(' ');
 
+    console.log(`[useAuth] Creating user document for ${user.uid}`);
     await setDoc(doc(firestore, "users", user.uid), {
         id: user.uid,
         firstName: firstName || 'User',
@@ -78,16 +93,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: user.email,
         role: "Client"
     }, { merge: true });
+    console.log(`[useAuth] signUpWithEmail for ${email} completed.`);
   };
 
   const signInWithEmail = async (email: string, password: string) => {
+    console.log(`[useAuth] signInWithEmail for ${email} initiated.`);
     if (!auth) throw new Error("Auth service not initialized");
     await signInWithEmailAndPassword(auth, email, password);
+    console.log(`[useAuth] signInWithEmail for ${email} successful.`);
   };
 
   const signOut = async () => {
+    console.log(`[useAuth] signOut initiated.`);
     if (!auth) throw new Error("Auth service not initialized");
     await firebaseSignOut(auth);
+    console.log(`[useAuth] signOut successful.`);
   };
 
   const value = { 
@@ -98,6 +118,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signInWithEmail, 
     signOut 
   };
+  
+  console.log('[AuthProvider] Rendering with value:', { user: user?.uid, loading });
 
   return (
     <AuthContext.Provider value={value}>

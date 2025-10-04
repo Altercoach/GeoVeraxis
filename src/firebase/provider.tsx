@@ -37,11 +37,17 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('[FirebaseProvider] Setting up onAuthStateChanged listener.');
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('[FirebaseProvider] onAuthStateChanged fired. User:', user ? user.uid : null);
       setUser(user);
+      console.log('[FirebaseProvider] Setting loading to false.');
       setLoading(false);
     });
-    return () => unsubscribe();
+    return () => {
+        console.log('[FirebaseProvider] Cleaning up onAuthStateChanged listener.');
+        unsubscribe();
+    }
   }, [auth]);
 
   const contextValue = useMemo(() => ({
@@ -51,6 +57,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     user,
     loading,
   }), [firebaseApp, firestore, auth, user, loading]);
+  
+  console.log('[FirebaseProvider] Rendering with context value:', { user: user?.uid, loading });
 
   return (
     <FirebaseContext.Provider value={contextValue}>

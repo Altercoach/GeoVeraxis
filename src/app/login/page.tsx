@@ -68,25 +68,28 @@ export default function LoginPage() {
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   
   useEffect(() => {
+    console.log('[LoginPage] useEffect triggered. User:', user, 'Loading:', loading);
     if (user) {
+      console.log('[LoginPage] User detected, redirecting to /dashboard.');
       router.push('/dashboard');
     }
-  }, [user, router]);
+  }, [user, router, loading]);
 
   const handleGoogleSignIn = async () => {
+    console.log('[LoginPage] handleGoogleSignIn initiated.');
     setIsGoogleSubmitting(true);
     try {
       await signInWithGoogle();
-      // Redirection will be handled by Firebase, and the auth state change
-      // will be caught by the provider, which will trigger the useEffect above.
+      // Redirection logic is handled by the auth provider catching the redirect result.
+      // The page will reload after Google sign-in.
     } catch (error: any) {
+      console.error('[LoginPage] Google sign-in error:', error);
       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         toast({
           variant: "destructive",
           title: "Error de inicio de sesión",
           description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
         });
-        console.error(error);
       }
       setIsGoogleSubmitting(false);
     }
@@ -94,22 +97,25 @@ export default function LoginPage() {
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[LoginPage] handleEmailSignIn initiated.');
     setIsEmailSubmitting(true);
     try {
       await signInWithEmail(email, password);
+      console.log('[LoginPage] Email sign-in successful, waiting for redirect...');
       // onAuthStateChanged will detect the user and the useEffect above will redirect
     } catch (error) {
+      console.error('[LoginPage] Email sign-in error:', error);
       toast({
         variant: "destructive",
         title: "Error de inicio de sesión",
         description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
       });
-      console.error(error);
       setIsEmailSubmitting(false);
     }
   };
 
   if (loading) {
+    console.log('[LoginPage] Auth state is loading. Rendering loader.');
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -118,6 +124,8 @@ export default function LoginPage() {
   }
   
   const isSubmitting = isEmailSubmitting || isGoogleSubmitting;
+
+  console.log('[LoginPage] Rendering login form. isSubmitting:', isSubmitting);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
