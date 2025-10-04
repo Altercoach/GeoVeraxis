@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, useContext, ReactNode, useEffect } from 'react';
 import { 
   User,
   GoogleAuthProvider,
@@ -29,10 +29,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { user, loading, auth, firestore } = useFirebase();
 
   useEffect(() => {
+    // Only run if auth and firestore are available and not in the initial loading state.
     if (!auth || !firestore || loading) {
       return;
     };
 
+    // This effect handles the user creation in Firestore after a Google sign-in redirect.
     getRedirectResult(auth)
       .then(async (result) => {
         if (result && result.user) {
@@ -50,11 +52,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       })
       .catch((error) => {
+         // Avoid logging errors for benign actions like closing the popup.
          if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
             console.error("[AuthProvider] Error processing redirect result:", error);
          }
       });
-  }, [auth, firestore, loading]);
+  }, [auth, firestore, loading]); // Dependencies ensure this runs when services are ready.
 
   const signInWithGoogle = async () => {
     if (!auth) throw new Error("Auth service not initialized");
@@ -73,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [firstName, ...lastNameParts] = displayName.split(' ');
     const lastName = lastNameParts.join(' ');
 
+    // Create user document in Firestore.
     await setDoc(doc(firestore, "users", user.uid), {
         id: user.uid,
         firstName: firstName || 'User',

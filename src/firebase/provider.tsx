@@ -18,14 +18,12 @@ export interface FirebaseContextState {
 // React Context
 export const FirebaseContext = createContext<FirebaseContextState | undefined>(undefined);
 
-
 interface FirebaseProviderProps {
   children: ReactNode;
   firebaseApp: FirebaseApp;
   firestore: Firestore;
   auth: Auth;
 }
-
 
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   children,
@@ -41,9 +39,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       setUser(user);
       setLoading(false);
     });
-    return () => {
-        unsubscribe();
-    }
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, [auth]);
 
   const contextValue = useMemo(() => ({
@@ -53,7 +50,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     user,
     loading,
   }), [firebaseApp, firestore, auth, user, loading]);
-  
 
   return (
     <FirebaseContext.Provider value={contextValue}>
@@ -62,7 +58,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     </FirebaseContext.Provider>
   );
 };
-
 
 export const useFirebase = (): FirebaseContextState => {
   const context = useContext(FirebaseContext);
