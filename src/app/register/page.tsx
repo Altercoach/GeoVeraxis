@@ -100,7 +100,6 @@ export default function RegisterPage() {
         description: description,
       });
       console.error(error);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -109,15 +108,17 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       await signInWithGoogle();
-      // After this, the page will redirect to Google, then back to the login page.
-      // The logic on the login page will handle the result.
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error de inicio de sesión",
-        description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
-      });
-      console.error(error);
+      // After this, the page will redirect to Google, and the auth provider
+      // will handle the user creation and state change.
+    } catch (error: any) {
+       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        toast({
+          variant: "destructive",
+          title: "Error de inicio de sesión",
+          description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
+        });
+        console.error(error);
+      }
       setIsSubmitting(false);
     }
   };
@@ -128,14 +129,6 @@ export default function RegisterPage() {
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
         </div>
     )
-  }
-
-  if (user) {
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-    );
   }
 
   return (
@@ -159,20 +152,20 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="first-name">Nombre</Label>
-                  <Input id="first-name" placeholder="Max" value={firstName} onChange={(e) => setFirstName(e.target.value)} required disabled={isSubmitting}/>
+                  <Input id="first-name" placeholder="Max" value={firstName} onChange={(e) => setFirstName(e.target.value)} required disabled={isSubmitting} autoComplete="given-name" />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="last-name">Apellidos</Label>
-                  <Input id="last-name" placeholder="Robinson" value={lastName} onChange={(e) => setLastName(e.target.value)} required disabled={isSubmitting}/>
+                  <Input id="last-name" placeholder="Robinson" value={lastName} onChange={(e) => setLastName(e.target.value)} required disabled={isSubmitting} autoComplete="family-name"/>
                 </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isSubmitting}/>
+                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isSubmitting} autoComplete="email"/>
               </div>
               <div className="grid gap-2">
                   <Label htmlFor="password">Contraseña</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isSubmitting}/>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isSubmitting} autoComplete="new-password"/>
               </div>
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
