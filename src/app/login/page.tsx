@@ -77,7 +77,7 @@ export default function LoginPage() {
     setIsGoogleSubmitting(true);
     try {
       await signInWithGoogle();
-      // The redirect will be handled by the useEffect hook
+      // Redirect is handled by the useEffect hook
     } catch (error: any) {
       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         toast({
@@ -95,7 +95,7 @@ export default function LoginPage() {
     setIsEmailSubmitting(true);
     try {
       await signInWithEmail(email, password);
-       // The redirect will be handled by the useEffect hook
+      // Redirect is handled by the useEffect hook
     } catch (error) {
       toast({
         variant: "destructive",

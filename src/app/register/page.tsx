@@ -69,13 +69,11 @@ export default function RegisterPage() {
   const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
-
   useEffect(() => {
     if (!loading && user) {
       router.push('/dashboard');
     }
   }, [user, loading, router]);
-
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +88,7 @@ export default function RegisterPage() {
     setIsEmailSubmitting(true);
     try {
       await signUpWithEmail(email, password, `${firstName} ${lastName}`);
+      // Redirect is handled by the useEffect hook
     } catch (error: any) {
       let description = "No se pudo crear la cuenta. Inténtalo de nuevo.";
       if (error.code === 'auth/email-already-in-use') {
@@ -108,6 +107,7 @@ export default function RegisterPage() {
     setIsGoogleSubmitting(true);
     try {
       await signInWithGoogle();
+      // Redirect is handled by the useEffect hook
     } catch (error: any) {
        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         toast({
