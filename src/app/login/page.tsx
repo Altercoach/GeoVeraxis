@@ -62,7 +62,7 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithGoogle, signInWithEmail, user, loading: authLoading } = useAuthHook();
+  const { signInWithGoogle, signInWithEmail, user, loading } = useAuthHook();
   const { auth, firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
@@ -72,16 +72,18 @@ export default function LoginPage() {
   
   // This effect handles the result from a Google Sign-In redirect
   useEffect(() => {
-    if (!auth) return;
-
-    const processRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
+    if (!auth || !firestore) return;
+    
+    setIsSubmitting(true);
+    getRedirectResult(auth)
+      .then(async (result) => {
         if (result && result.user) {
           const user = result.user;
           const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
           const lastName = lastNameParts.join(' ');
           
+          // Create user document in Firestore.
+          // onAuthStateChanged in the provider will then pick up the user and redirect.
           await setDoc(doc(firestore, "users", user.uid), {
               id: user.uid,
               firstName: firstName || 'User',
@@ -90,8 +92,9 @@ export default function LoginPage() {
               role: "Client"
           }, { merge: true });
         }
-      } catch (error: any) {
-        if (error.code !== 'auth/popup-closed-by-user') {
+      })
+      .catch((error: any) => {
+        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
             console.error("Error processing redirect result:", error);
             toast({
                 variant: "destructive",
@@ -99,12 +102,11 @@ export default function LoginPage() {
                 description: "No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.",
             });
         }
-      }
-    };
-    
-    processRedirectResult();
+      }).finally(() => {
+        setIsSubmitting(false);
+      });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth]);
+  }, [auth, firestore]);
 
   // This effect redirects the user if they are logged in
   useEffect(() => {
@@ -117,6 +119,8 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithGoogle();
+      // The page will redirect to Google, then back to this page.
+      // The useEffect above will handle the result.
     } catch (error) {
       toast({
         variant: "destructive",
@@ -124,8 +128,7 @@ export default function LoginPage() {
         description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
       });
       console.error(error);
-    } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -134,6 +137,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
+      // onAuthStateChanged will detect the user and the useEffect will redirect
     } catch (error) {
       toast({
         variant: "destructive",
@@ -146,9 +150,8 @@ export default function LoginPage() {
     }
   };
 
-  const isLoading = authLoading || isSubmitting;
-  
-  if (authLoading && !user) {
+  // Show a global loading screen while checking auth state or processing redirect
+  if (loading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -156,6 +159,16 @@ export default function LoginPage() {
     )
   }
 
+  // If we are not loading and there's a user, this component will shortly redirect.
+  // We can render null or a loading spinner to avoid flashing the login form.
+  if (user) {
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    );
+  }
+  
   // If we are done loading and there is no user, show the form.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
@@ -175,8 +188,8 @@ export default function LoginPage() {
           </CardHeader>
           <form onSubmit={handleEmailSignIn}>
             <CardContent className="grid gap-4">
-              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Iniciar sesión con Google
               </Button>
               <div className="relative">
@@ -191,7 +204,7 @@ export default function LoginPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} />
+                <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isSubmitting} />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
@@ -203,10 +216,10 @@ export default function LoginPage() {
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isLoading} />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isSubmitting} />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Iniciar Sesión
               </Button>
             </CardContent>
