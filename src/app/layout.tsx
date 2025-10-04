@@ -4,7 +4,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/hooks/use-auth";
 import { AdminProvider } from "@/hooks/use-admin";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
@@ -30,11 +29,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
-            <AuthProvider>
-              <AdminProvider>
-                {children}
-              </AdminProvider>
-            </AuthProvider>
+            <AdminProvider>
+              {children}
+            </AdminProvider>
           </FirebaseClientProvider>
           <Toaster />
         </ThemeProvider>

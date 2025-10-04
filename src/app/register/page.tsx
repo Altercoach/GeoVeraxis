@@ -59,15 +59,13 @@ const Logo = () => (
 );
 
 export default function RegisterPage() {
-  const { signUpWithEmail, signInWithGoogle, user, loading } = useAuthHook();
+  const { signUpWithEmail, signInWithGoogle, user, loading, isEmailSubmitting, isGoogleSubmitting } = useAuthHook();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
@@ -85,40 +83,7 @@ export default function RegisterPage() {
         });
         return;
     }
-    setIsEmailSubmitting(true);
-    try {
-      await signUpWithEmail(email, password, `${firstName} ${lastName}`);
-      // Redirect is handled by the useEffect hook
-    } catch (error: any) {
-      let description = "No se pudo crear la cuenta. Inténtalo de nuevo.";
-      if (error.code === 'auth/email-already-in-use') {
-        description = "Este correo electrónico ya está en uso. Por favor, inicia sesión o utiliza otro correo.";
-      }
-      toast({
-        variant: "destructive",
-        title: "Error de registro",
-        description: description,
-      });
-    } finally {
-        setIsEmailSubmitting(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setIsGoogleSubmitting(true);
-    try {
-      await signInWithGoogle();
-      // Redirect is handled by the useEffect hook
-    } catch (error: any) {
-       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        toast({
-          variant: "destructive",
-          title: "Error de inicio de sesión",
-          description: "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
-        });
-      }
-      setIsGoogleSubmitting(false);
-    }
+    await signUpWithEmail(email, password, `${firstName} ${lastName}`);
   };
 
   if (loading) {
@@ -181,7 +146,7 @@ export default function RegisterPage() {
                   </span>
                 </div>
               </div>
-              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
+              <Button variant="outline" className="w-full" type="button" onClick={signInWithGoogle} disabled={isSubmitting}>
                 {isGoogleSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Registrarse con Google
               </Button>
