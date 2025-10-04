@@ -71,9 +71,7 @@ export default function RegisterPage() {
 
 
   useEffect(() => {
-    console.log(`[RegisterPage] useEffect triggered. User: ${user ? user.uid : null}, Loading: ${loading}`);
     if (!loading && user) {
-      console.log('[RegisterPage] User detected, redirecting to /dashboard.');
       router.push('/dashboard');
     }
   }, [user, loading, router]);
@@ -81,7 +79,6 @@ export default function RegisterPage() {
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[RegisterPage] handleEmailSignUp initiated.');
     if (password.length < 6) {
         toast({
             variant: "destructive",
@@ -93,14 +90,11 @@ export default function RegisterPage() {
     setIsEmailSubmitting(true);
     try {
       await signUpWithEmail(email, password, `${firstName} ${lastName}`);
-      console.log('[RegisterPage] Email sign-up successful, waiting for redirect via useEffect...');
-      // onAuthStateChanged will detect the user and the useEffect will redirect
     } catch (error: any) {
       let description = "No se pudo crear la cuenta. Inténtalo de nuevo.";
       if (error.code === 'auth/email-already-in-use') {
         description = "Este correo electrónico ya está en uso. Por favor, inicia sesión o utiliza otro correo.";
       }
-      console.error('[RegisterPage] Email sign-up error:', error);
       toast({
         variant: "destructive",
         title: "Error de registro",
@@ -111,14 +105,10 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    console.log('[RegisterPage] handleGoogleSignIn initiated.');
     setIsGoogleSubmitting(true);
     try {
       await signInWithGoogle();
-      // After this, the page will redirect to Google, and the auth provider
-      // will handle the user creation and state change.
     } catch (error: any) {
-       console.error('[RegisterPage] Google sign-in error:', error);
        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         toast({
           variant: "destructive",
@@ -131,17 +121,6 @@ export default function RegisterPage() {
   };
 
   if (loading) {
-    console.log('[RegisterPage] Auth state is loading. Rendering loader.');
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-    )
-  }
-
-  // If user is already logged in but not yet redirected, we show loader.
-  if (user) {
-    console.log('[RegisterPage] User exists but has not been redirected yet. Showing loader.');
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -150,7 +129,6 @@ export default function RegisterPage() {
   }
 
   const isSubmitting = isEmailSubmitting || isGoogleSubmitting;
-  console.log('[RegisterPage] Rendering register form. isSubmitting:', isSubmitting);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">

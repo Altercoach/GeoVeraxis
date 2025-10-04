@@ -68,22 +68,16 @@ export default function LoginPage() {
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   
   useEffect(() => {
-    console.log(`[LoginPage] useEffect triggered. User: ${user ? user.uid : null}, Loading: ${loading}`);
     if (!loading && user) {
-      console.log('[LoginPage] User detected, redirecting to /dashboard.');
       router.push('/dashboard');
     }
   }, [user, loading, router]);
 
   const handleGoogleSignIn = async () => {
-    console.log('[LoginPage] handleGoogleSignIn initiated.');
     setIsGoogleSubmitting(true);
     try {
       await signInWithGoogle();
-      // Redirection logic is handled by the auth provider catching the redirect result.
-      // The page will reload after Google sign-in. The useEffect will then redirect.
     } catch (error: any) {
-      console.error('[LoginPage] Google sign-in error:', error);
       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         toast({
           variant: "destructive",
@@ -97,14 +91,10 @@ export default function LoginPage() {
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[LoginPage] handleEmailSignIn initiated.');
     setIsEmailSubmitting(true);
     try {
       await signInWithEmail(email, password);
-      console.log('[LoginPage] Email sign-in successful, waiting for redirect via useEffect...');
-      // onAuthStateChanged will detect the user and the useEffect above will redirect
     } catch (error) {
-      console.error('[LoginPage] Email sign-in error:', error);
       toast({
         variant: "destructive",
         title: "Error de inicio de sesión",
@@ -115,17 +105,6 @@ export default function LoginPage() {
   };
 
   if (loading) {
-    console.log('[LoginPage] Auth state is loading. Rendering loader.');
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-    )
-  }
-  
-  // If user is already logged in but not yet redirected, we show loader.
-  if (user) {
-    console.log('[LoginPage] User exists but has not been redirected yet. Showing loader.');
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -134,7 +113,6 @@ export default function LoginPage() {
   }
   
   const isSubmitting = isEmailSubmitting || isGoogleSubmitting;
-  console.log('[LoginPage] Rendering login form. isSubmitting:', isSubmitting);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
