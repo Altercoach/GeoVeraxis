@@ -30,3 +30,13 @@ yarn-error.log*
 .env.production.local
 .env.test.local
 .env
+
+# --- Auto-added by cleanup ---
+.firebase/
+node_modules/
+.next/
+dist/
+build/
+out/
+tmp/
+logs/
