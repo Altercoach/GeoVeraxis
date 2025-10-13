@@ -1,0 +1,8 @@
+{
+  "link_to_prototyper": "active",
+  "gemini_cli_bridge": "stable",
+  "firebase_feedback_channel": "enabled",
+  "loop_id": "C-κ",
+  "status": "cognitive feedback running",
+  "next_cycle": "$(date -d '+6 hours' 2>/dev/null || date)"
+}

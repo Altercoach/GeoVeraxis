@@ -1,0 +1,11 @@
+{
+  "loop_id": "C-κ",
+  "active": true,
+  "model_link": "ai_models/predictive_config.json",
+  "metrics_source": "data/metrics/system_performance.json",
+  "learning_rate": 0.05,
+  "auto_adjust": true,
+  "update_interval_hours": 6,
+  "log_file": "logs/feedback_cycle.log",
+  "notes": "Cognitive feedback loop connects live metrics with predictive model."
+}
