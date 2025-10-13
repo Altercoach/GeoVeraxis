@@ -1,0 +1,12 @@
+{
+  "model_id": "GeoVeraxis-FedNet-v1",
+  "type": "federated_learning",
+  "nodes": [
+    { "id": "local_instance", "role": "leader" },
+    { "id": "peer_1", "role": "contributor" },
+    { "id": "peer_2", "role": "observer" }
+  ],
+  "sync_interval_hours": 6,
+  "update_method": "weighted_aggregation",
+  "last_sync": "$(date)"
+}
