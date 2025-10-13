@@ -1,0 +1,18 @@
+{
+  "policy_version": "1.0",
+  "description": "Balanceo de carga predictivo basado en datos históricos y condiciones actuales.",
+  "parameters": {
+    "cpu_threshold": 75,
+    "latency_target_ms": 250,
+    "error_rate_max": 0.05,
+    "learning_rate": 0.15
+  },
+  "adaptive_weights": {
+    "production": 0.85,
+    "staging": 0.15
+  },
+  "auto_rollover": true,
+  "self_healing_fallback": true,
+  "predictive_model_ref": "ai_models/traffic_optimizer.json",
+  "last_updated": "$(date)"
+}
