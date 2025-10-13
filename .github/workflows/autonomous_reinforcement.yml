@@ -1,0 +1,24 @@
+name: "GEO_VERAXIS – Autonomous Reinforcement"
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # todos los días a las 3:00 AM UTC
+  workflow_dispatch:
+
+jobs:
+  reinforcement:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup environment
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Run autonomous reinforcement
+        run: bash reinforcement/autonomous_reinforce.sh
+      - name: Commit and push updates
+        run: |
+          git config user.name "geo-bot"
+          git config user.email "bot@geoveraxis.com"
+          git add ai_models/ logs/ || true
+          git commit -m "🧠 Automated reinforcement update (daily)" || echo "No changes"
+          git push origin main || true
