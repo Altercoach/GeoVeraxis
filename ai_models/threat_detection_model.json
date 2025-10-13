@@ -1,0 +1,17 @@
+{
+  "model_id": "GeoVeraxis-Cο-ThreatAI-v1",
+  "inputs": ["request_rate", "ip_reputation", "payload_entropy", "auth_failures", "geo_anomaly_score"],
+  "outputs": ["risk_score", "action_recommendation"],
+  "training_method": "deep_q_network",
+  "thresholds": {
+    "risk_score_critical": 0.9,
+    "risk_score_warning": 0.6
+  },
+  "actions": {
+    "critical": "auto_block",
+    "warning": "alert_only",
+    "normal": "allow"
+  },
+  "integration": ["C-λ", "C-ξ"],
+  "last_training": "$(date)"
+}
