@@ -1,0 +1,10 @@
+{
+  "timestamp": "$(date --iso-8601=seconds)",
+  "nodes": [
+    { "id": "local_instance", "trust_score": 92, "status": "leader" },
+    { "id": "peer_1", "trust_score": 88, "status": "contributor" },
+    { "id": "peer_2", "trust_score": 80, "status": "observer" }
+  ],
+  "aggregation_method": "weighted_average",
+  "notes": "Initial reputation baseline across the federated GeoVeraxis AI network."
+}
