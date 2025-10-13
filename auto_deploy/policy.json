@@ -1,0 +1,19 @@
+{
+  "auto_trigger": true,
+  "deploy_conditions": {
+    "build_success_rate": ">90%",
+    "prediction_confidence": ">0.8",
+    "critical_issues": "none"
+  },
+  "actions": [
+    "run_tests",
+    "firebase deploy --only hosting",
+    "log_results"
+  ],
+  "rollback_policy": {
+    "enabled": true,
+    "threshold_error_rate": ">20%"
+  },
+  "notification_channel": "logs/auto_deploy_feedback.log",
+  "last_update": "$(date)"
+}
