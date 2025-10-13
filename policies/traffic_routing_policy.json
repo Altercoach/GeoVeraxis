@@ -1,17 +1,24 @@
 {
   "policy_version": "1.0",
-  "description": "Reglas dinámicas de enrutamiento inteligente entre entornos.",
-  "routing_strategy": {
-    "production_weight": 0.8,
-    "staging_weight": 0.2,
-    "threshold_latency_ms": 300,
-    "threshold_error_rate": 0.05
+  "description": "Dynamic routing policy based on AI reputation, latency, and health metrics.",
+  "rules": {
+    "prefer_high_trust_nodes": true,
+    "min_trust_threshold": 70,
+    "latency_weight": 0.4,
+    "reputation_weight": 0.5,
+    "fallback_weight": 0.1
   },
-  "fallback": {
-    "on_production_failure": "redirect_to_staging",
-    "on_staging_instability": "fallback_to_production"
+  "adaptive_balancer": {
+    "mode": "reinforced",
+    "health_check_interval": "60s",
+    "auto_remove_unhealthy_nodes": true,
+    "recovery_threshold": 85
   },
-  "auto_learning": true,
-  "self_healing_integration": true,
-  "last_updated": "$(date)"
+  "failover": {
+    "auto_redirect": true,
+    "rollback_trigger": "2 consecutive failures",
+    "max_rollback_depth": 3
+  },
+  "linked_modules": ["C-ρ Reputation Exchange", "C-λ Self-Healing"],
+  "last_updated": "$(date --iso-8601=seconds)"
 }

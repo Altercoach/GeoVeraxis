@@ -1,0 +1,10 @@
+{
+  "timestamp": "$(date --iso-8601=seconds)",
+  "routes": [
+    { "id": "route_1", "destination": "node_local", "trust_score": 92, "latency_ms": 45, "status": "active" },
+    { "id": "route_2", "destination": "peer_1", "trust_score": 88, "latency_ms": 53, "status": "standby" },
+    { "id": "route_3", "destination": "peer_2", "trust_score": 80, "latency_ms": 65, "status": "fallback" }
+  ],
+  "decision_basis": "weighted_reputation_latency",
+  "status": "operational"
+}

@@ -1,0 +1,13 @@
+{
+  "model_id": "lb_adaptive_v1",
+  "parameters": {
+    "learning_rate": 0.05,
+    "reward_factor": 0.8,
+    "penalty_factor": 0.2,
+    "sampling_window": "15m"
+  },
+  "input_signals": ["latency_ms", "trust_score", "traffic_load"],
+  "output": "optimal_route_selection",
+  "status": "training_ready",
+  "last_update": "$(date --iso-8601=seconds)"
+}
