@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "enabled": true,
+  "interval_minutes": 15,
+  "exec_scripts": [
+    "scripts/simulate_and_recommend.sh",
+    "automation/auto_scale_scheduler.sh"
+  ],
+  "notifications": {
+    "on_failure": true,
+    "on_scale_action": true
+  },
+  "next_phase": "autonomous reinforcement"
+}

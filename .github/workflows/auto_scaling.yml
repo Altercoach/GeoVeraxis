@@ -1,0 +1,30 @@
+name: "GEO_VERAXIS – Predictive Auto-Scaling"
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"  # cada 15 minutos
+  workflow_dispatch:
+
+jobs:
+  predictive-scaling:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci || npm install
+      - name: Execute predictive scaling simulation
+        run: bash scripts/simulate_and_recommend.sh
+      - name: Execute auto-scaling scheduler (dry-run)
+        run: bash automation/auto_scale_scheduler.sh
+      - name: Commit and push updated logs
+        run: |
+          git config user.name "geo-bot"
+          git config user.email "bot@geoveraxis.com"
+          git add logs/ metrics/ || true
+          git commit -m "🤖 Auto-scaling log update (scheduled)" || echo "No changes"
+          git push origin main || true
