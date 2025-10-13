@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "httpsOnly": true,
+    "redirects": [
+      { "source": "/**", "destination": "https://www.geoveraxis.com", "type": 301 }
+    ]
+  }
+}
