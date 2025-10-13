@@ -1,0 +1,27 @@
+{
+  "policy_version": "1.0",
+  "description": "Autoscaling policy using predictive model based on traffic, latency, error-rate and reputation.",
+  "targets": {
+    "service_type": ["cloud_run","functions","vm"],
+    "min_instances": 1,
+    "max_instances": 10,
+    "scale_step": 1
+  },
+  "signals": {
+    "traffic_rps_weight": 0.45,
+    "latency_ms_weight": 0.25,
+    "error_rate_weight": 0.15,
+    "trust_score_weight": 0.15
+  },
+  "prediction": {
+    "horizon_minutes": 15,
+    "retrain_interval_hours": 24
+  },
+  "actions": {
+    "scale_up_threshold": 0.75,
+    "scale_down_threshold": 0.30,
+    "cooldown_seconds": 120,
+    "graceful_deploy": true
+  },
+  "last_update": "'$(date --iso-8601=seconds)'"
+}
