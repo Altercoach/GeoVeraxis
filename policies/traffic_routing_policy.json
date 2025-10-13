@@ -1,0 +1,17 @@
+{
+  "policy_version": "1.0",
+  "description": "Reglas dinámicas de enrutamiento inteligente entre entornos.",
+  "routing_strategy": {
+    "production_weight": 0.8,
+    "staging_weight": 0.2,
+    "threshold_latency_ms": 300,
+    "threshold_error_rate": 0.05
+  },
+  "fallback": {
+    "on_production_failure": "redirect_to_staging",
+    "on_staging_instability": "fallback_to_production"
+  },
+  "auto_learning": true,
+  "self_healing_integration": true,
+  "last_updated": "$(date)"
+}
