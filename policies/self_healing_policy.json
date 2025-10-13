@@ -1,0 +1,15 @@
+{
+  "policy_id": "C-λ",
+  "enabled": true,
+  "rollback_on_failure": true,
+  "max_failed_deploys": 2,
+  "monitor_interval_minutes": 10,
+  "auto_backup_before_deploy": true,
+  "notify_channels": ["console", "logs/self_healing.log"],
+  "actions": {
+    "detect_failure": "analyze logs/error_report.json",
+    "rollback": "restore from backups/last_stable_build",
+    "retrain_predictor": "ai_models/learning_update.json"
+  },
+  "notes": "Automatically monitors deployments and triggers rollback if failures exceed tolerance."
+}

@@ -1,0 +1,8 @@
+{
+  "timestamp": "$(date)",
+  "error_detected": true,
+  "component": "CI/CD deploy",
+  "error_message": "Build step failed due to missing dependency.",
+  "auto_rollback_triggered": true,
+  "restored_version": "backups/last_stable_build/geoveraxis_stable_$(date +%Y%m%d_%H%M).tar.gz"
+}
