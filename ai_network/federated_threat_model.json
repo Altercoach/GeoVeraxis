@@ -8,5 +8,5 @@
   ],
   "sync_interval_hours": 6,
   "update_method": "weighted_aggregation",
-  "last_sync": "$(date)"
+  "last_sync": "$(date --iso-8601=seconds)"
 }

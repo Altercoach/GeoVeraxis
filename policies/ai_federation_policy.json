@@ -15,5 +15,5 @@
     "aggregation_method": "federated averaging",
     "feedback_enabled": true
   },
-  "last_updated": "$(date)"
+  "last_updated": "$(date --iso-8601=seconds)"
 }
