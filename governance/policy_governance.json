@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "objective": "Establecer control de versiones, auditoría y rollback para el sistema de refuerzo autónomo.",
+  "modules": ["reinforcement", "ai_models", "metrics"],
+  "audit_frequency": "daily",
+  "rollback_trigger": {
+    "metric_threshold": 0.75,
+    "accuracy_drop_percent": 10,
+    "error_spike_ratio": 1.5
+  },
+  "auto_commit": true,
+  "logging": true,
+  "notify_channel": "logs/governance_audit.log"
+}

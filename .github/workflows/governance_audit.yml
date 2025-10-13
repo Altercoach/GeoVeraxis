@@ -1,0 +1,24 @@
+name: "GEO_VERAXIS – Governance & Audit"
+
+on:
+  schedule:
+    - cron: "0 4 * * *"  # Todos los días a las 04:00 UTC
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup environment
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Run governance audit
+        run: bash governance/run_audit.sh
+      - name: Commit and push audit logs
+        run: |
+          git config user.name "geo-audit-bot"
+          git config user.email "audit@geoveraxis.com"
+          git add audits/ logs/ ai_models/ || true
+          git commit -m "🧾 Governance audit executed (daily check)" || echo "No changes"
+          git push origin main || true
