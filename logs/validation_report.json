@@ -1,0 +1,10 @@
+{
+  "timestamp": "$(date --iso-8601=seconds)",
+  "checklist": {
+    "ci_cd_workflow_exists": true,
+    "hosting_https_forced": true,
+    "redirects_configured": true,
+    "domains_registered": ["geoveraxis.com","www.geoveraxis.com"],
+    "notes": "Validaciones iniciales creadas por Prototyper; verificar consola para pruebas live."
+  }
+}

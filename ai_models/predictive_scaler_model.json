@@ -1,0 +1,12 @@
+{
+  "model_id": "predictive_scaler_v1",
+  "type": "time_series_regression",
+  "input_features": ["rps","latency_ms","error_rate","trust_score","time_of_day"],
+  "output": ["predicted_rps","recommended_instances"],
+  "status": "training_ready",
+  "last_trained": null,
+  "parameters": {
+    "window_minutes": 30,
+    "retrain_on_data_points": 1000
+  }
+}

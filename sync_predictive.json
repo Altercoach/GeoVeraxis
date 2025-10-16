@@ -1,0 +1,8 @@
+{
+  "prototyper_link": "active",
+  "gemini_cli_sync": "enabled",
+  "learning_feedback": "two-way",
+  "last_update": "$(date)",
+  "source": "Firebase Studio Gemini",
+  "notes": "Predictive optimization in progress. Awaiting feedback from CLI."
+}

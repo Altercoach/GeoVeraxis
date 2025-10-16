@@ -1,0 +1,21 @@
+{
+  "policy_version": "1.0",
+  "description": "Sistema autónomo de defensa y detección de amenazas basado en IA.",
+  "monitoring": {
+    "rate_limit": 1000,
+    "alert_threshold": 0.85,
+    "block_duration_sec": 600
+  },
+  "response_actions": {
+    "auto_block": true,
+    "traffic_isolation": true,
+    "rollback_trigger": true
+  },
+  "learning": {
+    "model": "ai_models/threat_detection_model.json",
+    "training_method": "supervised + reinforcement hybrid",
+    "auto_update": true
+  },
+  "integrations": ["C-λ Self-Healing", "C-ξ Load Balancer"],
+  "last_updated": "$(date)"
+}

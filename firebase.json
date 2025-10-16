@@ -1,0 +1,23 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "httpsOnly": true,
+    "redirects": [
+      {
+        "source": "/test/**",
+        "destination": "https://staging.geoveraxis.com",
+        "type": 302
+      },
+      {
+        "source": "/**",
+        "destination": "https://www.geoveraxis.com",
+        "type": 301
+      }
+    ]
+  }
+}

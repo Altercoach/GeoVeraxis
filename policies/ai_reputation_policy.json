@@ -1,0 +1,23 @@
+{
+  "policy_version": "1.0",
+  "description": "Defines trust and reputation scoring for federated AI nodes in the GeoVeraxis ecosystem.",
+  "trust_model": {
+    "base_score": 50,
+    "max_score": 100,
+    "min_score": 0,
+    "decay_rate": 0.02,
+    "reward_factors": ["uptime", "accuracy", "response_time", "security_compliance"],
+    "penalty_factors": ["failed_syncs", "anomalies_detected", "policy_violations"]
+  },
+  "aggregation": {
+    "method": "weighted_average",
+    "update_interval_hours": 12,
+    "sync_mode": "asynchronous"
+  },
+  "governance": {
+    "consensus_model": "PoT (Proof of Trust)",
+    "dispute_resolution": "automated_audit"
+  },
+  "integration": ["C-π Federated Network", "C-λ Self-Healing"],
+  "last_updated": "$(date --iso-8601=seconds)"
+}

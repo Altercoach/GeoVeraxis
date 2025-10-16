@@ -1,0 +1,7 @@
+{
+  "loop_id": "C-λ",
+  "status": "active",
+  "gemini_cli_bridge": "stable",
+  "prototyper_link": "healing-monitor-enabled",
+  "next_cycle": "$(date -d '+12 hours' 2>/dev/null || date)"
+}
