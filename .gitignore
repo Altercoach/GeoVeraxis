@@ -43,4 +43,5 @@ functions/.env
 **/yarn-error.log*
 
 # Logs & Backups
-/backups
+/backupsnode_modules/
+.next/
