@@ -1,55 +1,69 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
+import { auth } from 'firebase-admin';
 
-// This token is used to identify authenticated users.
-// It is stored in the browser's cookies.
-const AUTH_COOKIE_NAME = '__session'; // A more generic name is better
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export async function middleware(request: NextRequest) {
+  // 1. Get the session cookie
+  const sessionCookie = request.cookies.get('session')?.value;
 
-  // List of routes that are considered "public" and should not be accessed by authenticated users
-  const authPaths = ['/login', '/register', '/pricing', '/payment'];
-
-  // Get the authentication token from cookies.
-  const authToken = request.cookies.get(AUTH_COOKIE_NAME);
-
-  const isAuthPath = authPaths.some(path => pathname.startsWith(path));
-  const isRootPath = pathname === '/';
-
-  // If the user is authenticated and tries to access a login/register/pricing/payment page,
-  // redirect them to the dashboard.
-  if (authToken && isAuthPath) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  // If no cookie, redirect to login
+  if (!sessionCookie) {
+    // For API routes, return 401
+    if (request.nextUrl.pathname.startsWith('/api/')) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+    // For UI routes, redirect to the login page
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Allow access to the landing page (root) without authentication
-  if (isRootPath) {
-    return NextResponse.next();
-  }
-  
-  // Allow access to auth-related routes if there is no token
-  if (isAuthPath && !authToken) {
-      return NextResponse.next();
-  }
+  try {
+    // 2. Verify the session cookie
+    // The `true` checks for revocation
+    const decodedToken = await auth().verifySessionCookie(sessionCookie, true);
 
-  // If the user tries to access a protected route (any route that is not public or root)
-  // and there is no token, redirect them to the login page.
-  if (!authToken && !isAuthPath && !isRootPath) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('next', pathname); // Optional: to redirect the user back after login.
-    return NextResponse.redirect(loginUrl);
-  }
+    // 3. Allow the request to proceed
+    // You can add the user's ID to the request headers for use in API routes
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('X-User-ID', decodedToken.uid);
+    requestHeaders.set('X-User-Email', decodedToken.email || '');
 
-  // For all other cases (e.g., authenticated user accessing a protected route), allow access.
-  return NextResponse.next();
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+
+  } catch (error) {
+    console.error('Middleware Auth Error:', error);
+
+    // If verification fails, clear the cookie and redirect to login
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete('session');
+    
+    // For API routes, just return 401 after clearing the cookie
+    if (request.nextUrl.pathname.startsWith('/api/')) {
+      const apiResponse = new NextResponse('Unauthorized', { status: 401 });
+      apiResponse.cookies.delete('session');
+      return apiResponse;
+    }
+
+    return response;
+  }
 }
 
-// Middleware configuration to specify which routes it should watch.
+// 4. Middleware Matcher
+// This configures the middleware to run ONLY on specified paths.
 export const config = {
   matcher: [
-    // Apply to all routes except those for static files,
-    // images, or Next.js internal routes.
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - / (the root page, if you want it to be public)
+     * - /login (the login page itself)
+     * - /register (the register page)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|login|register|api/auth/session).*)',
   ],
 };
