@@ -52,6 +52,17 @@ service cloud.firestore {
     }
 
     /**
+     * @description Rules for the clients collection.
+     * @path /clients/{clientId}
+     * @allow (get, list) - Any authenticated user can read client data.
+     * @deny (create, update, delete) - No one can write to the clients collection for now.
+     */
+    match /clients/{clientId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false;
+    }
+
+    /**
      * @description Rules for user profiles.
      * @path /users/{userId}
      * @allow (create) - User 'abc' can create their own profile if request.auth.uid == 'abc'.

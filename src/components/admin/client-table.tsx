@@ -20,6 +20,7 @@ import {
   HeaderGroup
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal, PlusCircle } from "lucide-react";
+import { Client } from "@/lib/schemas";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,52 +49,8 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
-
-const data: Client[] = [
-  {
-    id: "m5gr84i9",
-    name: "Tech Solutions Inc.",
-    role: "Client",
-    status: "Active",
-    plan: "Enterprise",
-  },
-  {
-    id: "3u1reuv4",
-    name: "Notaría Pública 12",
-    role: "Notary",
-    status: "Active",
-    plan: "Pro",
-  },
-  {
-    id: "derv1ws0",
-    name: "Real Estate Global",
-    role: "Client",
-    status: "Suspended",
-    plan: "Basic",
-  },
-  {
-    id: "5kma53ae",
-    name: "Registro Público de la Propiedad",
-    role: "Public Registrar",
-    status: "Active",
-    plan: "Government",
-  },
-  {
-    id: "bhqecj4p",
-    name: "Innovatech Legal",
-    role: "Notary",
-    status: "Paused",
-    plan: "Pro",
-  },
-];
-
-export type Client = {
-  id: string;
-  name: string;
-  role: "Client" | "Notary" | "Public Registrar";
-  status: "Active" | "Paused" | "Suspended" | "Canceled";
-  plan: "Basic" | "Pro" | "Enterprise" | "Government";
-};
+import { useClients } from "@/hooks/use-clients";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
     Active: "default",
@@ -191,13 +148,14 @@ export const columns: ColumnDef<Client>[] = [
 ];
 
 export function AdminClientTable() {
+  const { clients, loading, error } = useClients();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data,
+    data: clients ?? [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -214,6 +172,19 @@ export function AdminClientTable() {
       rowSelection,
     },
   });
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Client Management</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-red-500">Error loading clients: {error.message}</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -285,7 +256,15 @@ export function AdminClientTable() {
                 ))}
               </TableHeader>
               <TableBody>
-                {table.getRowModel().rows?.length ? (
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                      <Skeleton className="w-full h-[20px] rounded-full" />
+                      <Skeleton className="w-full h-[20px] rounded-full mt-2" />
+                      <Skeleton className="w-full h-[20px] rounded-full mt-2" />
+                    </TableCell>
+                  </TableRow>
+                ) : table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row: Row<Client>) => (
                     <TableRow
                       key={row.id}

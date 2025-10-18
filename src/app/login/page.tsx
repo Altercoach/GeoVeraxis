@@ -17,6 +17,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+// Firebase imports for redirect handling
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { useFirebase } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -28,26 +34,10 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
   
 const Logo = () => (
-    <svg
-      width="48"
-      height="48"
-      viewBox="0 0 100 100"
-      className="text-primary"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M50 0L100 25V75L50 100L0 75V25L50 0Z"
-        fill="url(#logo-gradient)"
-      />
-      <path
-        d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z"
-        className="fill-background"
-      />
-      <path
-        d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z"
-        fill="url(#logo-gradient)"
-      />
+    <svg width="48" height="48" viewBox="0 0 100 100" className="text-primary" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 0L100 25V75L50 100L0 75V25L50 0Z" fill="url(#logo-gradient)"/>
+      <path d="M50 15L84 32.5V67.5L50 85L16 67.5V32.5L50 15Z" className="fill-background"/>
+      <path d="M50 25L75 37.5V62.5L50 75L25 62.5V37.5L50 25Z" fill="url(#logo-gradient)"/>
       <defs>
         <linearGradient id="logo-gradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
             <stop stopColor="hsl(var(--primary))"/>
@@ -58,33 +48,96 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithGoogle, signInWithEmail, user, loading } = useAuthHook();
+  const { signInWithEmail, user, loading: authLoading } = useAuthHook();
+  const { auth, firestore } = useFirebase();
+  const { toast } = useToast();
   const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
-  
+  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true); // Start true to handle initial check
+
+  // Effect to handle redirect result on page load
   useEffect(() => {
-    if (!loading && user) {
+    // Wait until Firebase is initialized
+    if (!auth || !firestore) {
+      return;
+    }
+
+    const processRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          const user = result.user;
+          const idToken = await user.getIdToken();
+
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken }),
+          });
+
+          const userRef = doc(firestore, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+          if (!userSnap.exists()) {
+            const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
+            const lastName = lastNameParts.join(' ');
+            await setDoc(userRef, {
+              id: user.uid,
+              firstName: firstName || 'User',
+              lastName: lastName || '',
+              email: user.email,
+              role: "Client"
+            }, { merge: true });
+          }
+        }
+      } catch (error: any) {
+        console.error("Redirect Result Error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error de inicio de sesión",
+          description: "No se pudo procesar el inicio de sesión. Por favor, inténtalo de nuevo.",
+        });
+      } finally {
+        setIsProcessingRedirect(false);
+      }
+    };
+
+    processRedirectResult();
+
+  }, [auth, firestore, toast]);
+
+  // Effect to redirect user if already logged in
+  useEffect(() => {
+    if (!authLoading && !isProcessingRedirect && user) {
       router.push('/dashboard');
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, isProcessingRedirect, router]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsEmailSubmitting(true);
     await signInWithEmail(email, password);
-    setIsEmailSubmitting(false);
+    // The hook's internal state update is not reliably triggering the redirect useEffect,
+        window.location.href = '/dashboard';    setIsEmailSubmitting(false);
   };
   
   const handleGoogleSignIn = async () => {
     setIsGoogleSubmitting(true);
-    await signInWithGoogle();
-    setIsGoogleSubmitting(false);
-  }
+    if (!auth) {
+      toast({ variant: "destructive", title: "Error", description: "Servicio de autenticación no disponible." });
+      setIsGoogleSubmitting(false);
+      return;
+    }
+    const provider = new GoogleAuthProvider();
+    await signInWithRedirect(auth, provider);
+  };
 
-  if (loading) {
+  const isLoading = authLoading || isProcessingRedirect;
+
+  if (isLoading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />

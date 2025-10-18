@@ -1,8 +1,0 @@
-{
-  "phase": "C-χ.1",
-  "module": "Governance Workflow Restoration",
-  "status": "active",
-  "linked_workflow": ".github/workflows/governance_audit.yml",
-  "policy": "governance/policy_governance.json",
-  "timestamp": "2025-10-16T04:40:46+00:00"
-}

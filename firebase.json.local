@@ -9,9 +9,6 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-    "rewrites": [
-      { "source": "**", "function": "ssrStudio2247565261d647" }
     ]
   }
 }

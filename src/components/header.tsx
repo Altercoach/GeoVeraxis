@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuthHook } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
 export function Header() {
@@ -25,8 +25,10 @@ export function Header() {
     }
 
     return (
-      <Link href="/login">
-          <Button className="bg-primary hover:bg-primary-dark text-white">Iniciar Sesión</Button>
+      <Link href="/login" legacyBehavior>
+        <a className={buttonVariants({ variant: 'default', className: 'bg-primary hover:bg-primary-dark text-white' })}>
+          Iniciar Sesión
+        </a>
       </Link>
     );
   };
@@ -46,8 +48,10 @@ export function Header() {
     }
 
     return (
-        <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-            <Button className="bg-primary hover:bg-primary-dark text-white">Iniciar Sesión</Button>
+        <Link href="/login" legacyBehavior>
+            <a onClick={() => setIsMenuOpen(false)} className={buttonVariants({ variant: 'default', className: 'bg-primary hover:bg-primary-dark text-white' })}>
+                Iniciar Sesión
+            </a>
         </Link>
     );
   };

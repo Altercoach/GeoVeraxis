@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import Image from "next/image";
 
 export function LandingPage() {
     const features = [
@@ -114,7 +115,7 @@ export function LandingPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {features.map((feature, index) => (
                             <div key={index} className="bg-gray-800 p-6 rounded-lg text-center transform transition duration-500 hover:scale-105">
-                                <img src={feature.icon} alt={`${feature.title} icon`} className="h-12 w-12 mx-auto mb-4" />
+                                <Image src={feature.icon} alt={`${feature.title} icon`} width={48} height={48} className="mx-auto mb-4" />
                                 <h3 className="text-xl font-bold text-white">{feature.title}</h3>
                                 <p className="mt-2 text-gray-400">{feature.description}</p>
                             </div>
@@ -140,8 +141,8 @@ export function LandingPage() {
                         <div className="p-4">
                         <Card className="bg-gray-900 border-gray-700">
                             <CardContent className="flex flex-col items-center text-center p-6">
-                                <img src={testimonial.avatar} alt={testimonial.name} className="w-20 h-20 rounded-full mb-4" />
-                                <p className="text-gray-300 italic">\"{testimonial.text}\"</p>
+                                <Image src={testimonial.avatar} alt={testimonial.name} width={80} height={80} className="rounded-full mb-4" />
+                                <p className="text-gray-300 italic">&quot;{testimonial.text}&quot;</p>
                                 <p className="mt-4 font-bold text-white">{testimonial.name}</p>
                                 <p className="text-sm text-gray-500">{testimonial.role}</p>
                             </CardContent>
