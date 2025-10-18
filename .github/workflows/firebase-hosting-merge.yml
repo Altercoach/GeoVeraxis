@@ -1,38 +1,36 @@
-# name: 🚀 GeoVeraxis Continuous Deploy
-# 
-# on:
-#   push:
-#     branches: [ "main" ]
-#   workflow_dispatch:
-# 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: 🧩 Checkout repository
-#         uses: actions/checkout@v4
-# 
-#       - name: ⚙️ Setup Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: 20
-# 
-#       - name: 📦 Install dependencies
-#         run: npm ci
-# 
-#       - name: 🔨 Build project
-#         run: npm run build
-# 
-#       - name: 🚀 Deploy to Firebase Hosting + App Hosting
-#         uses: w9jds/firebase-action@v13
-#         with:
-#           args: deploy --only hosting,functions
-#         env:
-#           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-# 
-#       - name: 🧠 Post-deploy sync validation
-#         run: |
-#           echo "Validating post-deploy status..."
-#           echo "Checking SSL certificate and HTTPS redirects..."
-#           curl -Is https://geoveraxis.com | grep -E "HTTP|Location" || true
-#           curl -Iv https://www.geoveraxis.com 2>&1 | grep -E "subject:|issuer:|expire" || true
+name: 🚀 GeoVeraxis Continuous Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🧩 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔨 Build project
+        run: npm run build
+
+      - name: 🚀 Deploy to Firebase Hosting + App Hosting
+        uses: w9jds/firebase-action@v13
+        with:
+          args: deploy --only hosting,functions
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: 🧠 Post-deploy sync validation
+        run: |
+          echo "Validating post-deploy status..."
+          echo "Checking SSL certificate and HTTPS redirects..."
+          curl -Is https://geoveraxis.com | grep -E "HTTP|Location" || true
+          curl -Iv https://www.geoveraxis.com 2>&1 | grep -E "subject:|issuer:|expire" || true
