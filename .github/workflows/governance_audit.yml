@@ -38,7 +38,11 @@ jobs:
         with:
           args: projects:list
         env:
+<<<<<<< HEAD
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+=======
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+>>>>>>> e0c7b32bacf06714db868d6bad48141109326d98
 
       - name: Commit and push audit logs
         run: |

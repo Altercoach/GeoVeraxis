@@ -86,6 +86,8 @@ export const useFirebaseApp = (): FirebaseApp | null => {
   return firebaseApp;
 };
 
+<<<<<<< HEAD
+=======
 type MemoFirebase <T> = T & {__memo?: boolean};
 
 export function useMemoFirebase<T>(factory: () => T, deps: React.DependencyList): T | (MemoFirebase<T>) {
@@ -98,6 +100,7 @@ export function useMemoFirebase<T>(factory: () => T, deps: React.DependencyList)
   return memoized;
 }
 
+>>>>>>> e0c7b32bacf06714db868d6bad48141109326d98
 /**
  * Hook specifically for accessing the authenticated user's state.
  * This provides the User object, loading status, and any auth errors.
@@ -106,3 +109,18 @@ export const useUser = (): { user: User | null; loading: boolean } => {
   const { user, loading } = useFirebase();
   return { user, loading };
 };
+<<<<<<< HEAD
+
+
+type MemoFirebase <T> = T & {__memo?: boolean};
+
+export function useMemoFirebase<T>(factory: () => T, deps: React.DependencyList): T | (MemoFirebase<T>) {
+  const memoized = useMemo(factory, deps);
+  
+  if(typeof memoized !== 'object' || memoized === null) return memoized;
+  (memoized as MemoFirebase<T>).__memo = true;
+  
+  return memoized;
+}
+=======
+>>>>>>> e0c7b32bacf06714db868d6bad48141109326d98

@@ -1,28 +1,4 @@
-"use client";
-
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
-export function DocumentVerifier() {
-  return (
-    <div className="grid gap-8 md:grid-cols-1">
-      <Card>
-        <CardHeader>
-          <CardTitle>Verify Document</CardTitle>
-          <CardDescription>
-            Upload a document and provide details for AI analysis.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center">
-          <p className="text-muted-foreground">The document verifier is temporarily disabled.</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-
-/*
-"use client";
+'use client';
 
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -54,11 +30,11 @@ import { CheckCircle2, XCircle, FileWarning, Loader2, PlusCircle, Trash2 } from 
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  document: z.any().refine((files) => files?.length === 1, "Document is required."),
-  description: z.string().min(10, "Description must be at least 10 characters."),
+  document: z.any().refine((files) => files?.length === 1, "Se requiere un documento."),
+  description: z.string().min(10, "La descripción debe tener al menos 10 caracteres."),
   expectedData: z.array(z.object({
-    key: z.string().min(1, "Key is required."),
-    value: z.string().min(1, "Value is required."),
+    key: z.string().min(1, "La clave es requerida."),
+    value: z.string().min(1, "El valor es requerido."),
   })).optional(),
 });
 
@@ -114,8 +90,8 @@ export function DocumentVerifier() {
       console.error("Verification failed:", error);
       toast({
         variant: "destructive",
-        title: "Verification Failed",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Falló la Verificación",
+        description: "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.",
       });
     } finally {
       setIsLoading(false);
@@ -126,9 +102,9 @@ export function DocumentVerifier() {
     <div className="grid gap-8 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Verify Document</CardTitle>
+          <CardTitle>Verificar Documento</CardTitle>
           <CardDescription>
-            Upload a document and provide details for AI analysis.
+            Sube un documento y proporciona detalles para el análisis de la IA.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -139,7 +115,7 @@ export function DocumentVerifier() {
                 name="document"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Document File</FormLabel>
+                    <FormLabel>Archivo del Documento</FormLabel>
                     <FormControl>
                       <Input
                         type="file"
@@ -156,9 +132,9 @@ export function DocumentVerifier() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Document Description</FormLabel>
+                    <FormLabel>Descripción del Documento</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="e.g., 'Property deed for 123 Main St.'" {...field} />
+                      <Textarea placeholder="Ej: 'Escritura de propiedad para C/ Principal, 123'" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,7 +142,7 @@ export function DocumentVerifier() {
               />
 
               <div>
-                <Label>Expected Data (Optional)</Label>
+                <Label>Datos Esperados (Opcional)</Label>
                 <div className="space-y-2 mt-2">
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex gap-2 items-center">
@@ -176,7 +152,7 @@ export function DocumentVerifier() {
                       render={({ field }) => (
                         <FormItem className="flex-1">
                            <FormControl>
-                            <Input {...field} placeholder="Key" />
+                            <Input {...field} placeholder="Clave" />
                            </FormControl>
                            <FormMessage/>
                         </FormItem>
@@ -188,7 +164,7 @@ export function DocumentVerifier() {
                       render={({ field }) => (
                         <FormItem className="flex-1">
                            <FormControl>
-                            <Input {...field} placeholder="Value" />
+                            <Input {...field} placeholder="Valor" />
                            </FormControl>
                            <FormMessage/>
                         </FormItem>
@@ -201,7 +177,7 @@ export function DocumentVerifier() {
                 ))}
                 </div>
                 <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => append({key: "", value: ""})}>
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Key-Value Pair
+                  <PlusCircle className="mr-2 h-4 w-4" /> Añadir par Clave-Valor
                 </Button>
               </div>
 
@@ -209,10 +185,10 @@ export function DocumentVerifier() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Verifying...
+                    Verificando...
                   </>
                 ) : (
-                  "Verify Document"
+                  "Verificar Documento"
                 )}
               </Button>
             </form>
@@ -221,9 +197,9 @@ export function DocumentVerifier() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Verification Report</CardTitle>
+          <CardTitle>Informe de Verificación</CardTitle>
           <CardDescription>
-            AI-generated analysis of the document.
+            Análisis del documento generado por IA.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -234,34 +210,34 @@ export function DocumentVerifier() {
           )}
           {!isLoading && !result && (
             <div className="text-center text-muted-foreground h-full flex items-center justify-center">
-              <p>Your verification report will appear here.</p>
+              <p>Tu informe de verificación aparecerá aquí.</p>
             </div>
           )}
           {result && (
             <div className="space-y-6">
               <Alert variant={result.authenticity.isAuthentic ? "default" : "destructive"}>
                 {result.authenticity.isAuthentic ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                <AlertTitle>Authenticity</AlertTitle>
+                <AlertTitle>Autenticidad</AlertTitle>
                 <AlertDescription>{result.authenticity.authenticityExplanation}</AlertDescription>
               </Alert>
 
               <Alert variant={result.completeness.isComplete ? "default" : "destructive"}>
                 {result.completeness.isComplete ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                <AlertTitle>Completeness</AlertTitle>
+                <AlertTitle>Integridad</AlertTitle>
                 <AlertDescription>
-                  {result.completeness.isComplete ? "Document contains all expected data." : `Missing data: ${result.completeness.missingData.join(", ")}`}
-                </Gpt-response>
+                  {result.completeness.isComplete ? "El documento contiene todos los datos esperados." : `Datos faltantes: ${result.completeness.missingData.join(", ")}`}
+                </AlertDescription>
               </Alert>
               
               <Alert variant={result.fraudIndicators.length > 0 ? "destructive" : "default"}>
                 {result.fraudIndicators.length > 0 ? <FileWarning className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-                <AlertTitle>Fraud Indicators</AlertTitle>
+                <AlertTitle>Indicadores de Fraude</AlertTitle>
                 <AlertDescription>
                   {result.fraudIndicators.length > 0 ? (
                      <ul className="list-disc pl-5">
                         {result.fraudIndicators.map((indicator, i) => <li key={i}>{indicator}</li>)}
                     </ul>
-                  ) : "No fraud indicators detected."}
+                  ) : "No se detectaron indicadores de fraude."}
                 </AlertDescription>
               </Alert>
             </div>
@@ -271,4 +247,3 @@ export function DocumentVerifier() {
     </div>
   );
 }
-*/

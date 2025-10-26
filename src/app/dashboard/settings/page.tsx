@@ -30,7 +30,11 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle>Company Profile</CardTitle>
               <CardDescription>
+<<<<<<< HEAD
+                Manage your organization's information.
+=======
                 Manage your organization&apos;s information.
+>>>>>>> e0c7b32bacf06714db868d6bad48141109326d98
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

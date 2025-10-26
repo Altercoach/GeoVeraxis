@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { BrainCircuit, GlobeLock, Map, DatabaseZap } from "lucide-react";
 import Image from "next/image";
 
 export function LandingPage() {
@@ -9,22 +10,22 @@ export function LandingPage() {
         {
             title: "Verificación de Documentos con IA",
             description: "Analiza y valida documentos catastrales y legales con nuestra IA de vanguardia, garantizando la autenticidad y precisión.",
-            icon: "/icons/ai-icon.svg"
+            icon: BrainCircuit
         },
         {
             title: "Transacciones Seguras con Blockchain",
             description: "Registra cada transacción en un libro mayor inmutable, proporcionando una capa de seguridad y transparencia sin precedentes.",
-            icon: "/icons/blockchain-icon.svg"
+            icon: GlobeLock
         },
         {
             title: "Sistema de Mapeo Geoespacial",
             description: "Visualiza propiedades con datos geoespaciales precisos, integrando capas de información para una visión completa.",
-            icon: "/icons/map-icon.svg"
+            icon: Map
         },
         {
             title: "Almacenamiento Descentralizado de Datos",
             description: "Protege la información vital en una red de almacenamiento descentralizada, asegurando la soberanía y resistencia de los datos.",
-            icon: "/icons/storage-icon.svg"
+            icon: DatabaseZap
         },
     ];
 
@@ -78,17 +79,10 @@ export function LandingPage() {
     <main>
             {/* Hero Section */}
             <section className="relative h-screen flex items-center justify-center text-center">
-               <video 
-                    src="https://videos.pexels.com/video-files/3209828/3209828-hd_1920_1080_25fps.mp4"
-                    autoPlay 
-                    loop 
-                    muted 
-                    playsInline
-                    className="absolute top-0 left-0 w-full h-full object-cover -z-10 brightness-[.3]"
-                />
+              <div className="absolute top-0 left-0 w-full h-full bg-gray-900 -z-10 brightness-[.3]" />
               <div className="container px-4 md:px-6">
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter text-white drop-shadow-md font-jakarta">
-                  La Intersección de Precisión Geoespacial y Certeza Legal
+                  Certeza Geoespacial. Seguridad Inmobiliaria.
                 </h1>
                 <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-300 drop-shadow-sm">
                   Nuestra plataforma con IA y Blockchain redefine la gestión catastral, la validación de documentos y las transacciones inmobiliarias, creando un ecosistema de confianza y eficiencia.
@@ -115,7 +109,7 @@ export function LandingPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {features.map((feature, index) => (
                             <div key={index} className="bg-gray-800 p-6 rounded-lg text-center transform transition duration-500 hover:scale-105">
-                                <Image src={feature.icon} alt={`${feature.title} icon`} width={48} height={48} className="mx-auto mb-4" />
+                                <feature.icon className="h-12 w-12 mx-auto mb-4 text-primary" />
                                 <h3 className="text-xl font-bold text-white">{feature.title}</h3>
                                 <p className="mt-2 text-gray-400">{feature.description}</p>
                             </div>
@@ -125,7 +119,7 @@ export function LandingPage() {
             </section>
 
             {/* Testimonials Section */}
-            <section className="py-12 md:py-24 bg-gray-950">
+            <section id="testimonials" className="py-12 md:py-24 bg-gray-950">
               <div className="container px-4 md:px-6">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl md:text-4xl font-bold text-white">Lo que dicen nuestros clientes</h2>
@@ -158,7 +152,7 @@ export function LandingPage() {
             </section>
 
             {/* FAQ Section */}
-            <section className="py-12 md:py-24 bg-gray-900">
+            <section id="faq" className="py-12 md:py-24 bg-gray-900">
                 <div className="container px-4 md:px-6">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold text-white">Preguntas Frecuentes</h2>

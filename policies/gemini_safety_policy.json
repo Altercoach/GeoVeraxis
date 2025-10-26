@@ -1,0 +1,12 @@
+{
+  "policy": "Gemini Operational Safety Directives",
+  "rules": [
+    "🚫 No ejecutar git add . ni git commit -a sin revisión previa del .gitignore.",
+    "🚫 No borrar, vaciar o sobrescribir archivos fuera de los directorios permitidos (src, app, functions, public, config).",
+    "🚫 No modificar ni eliminar firebase.json, apphosting.yaml o .firebaserc sin orden ejecutiva explícita.",
+    "✅ Solo modificar archivos .json, .yml, .sh o .ts dentro del alcance autorizado por órdenes GEO_VERAXIS.",
+    "✅ Ejecutar siempre 'git status' y 'git diff' antes de cualquier commit automático.",
+    "✅ Mantener logs de auditoría en /logs y /governance."
+  ],
+  "enforced_at": "$(date)"
+}

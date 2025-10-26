@@ -59,7 +59,7 @@ const Logo = () => (
 );
 
 export default function RegisterPage() {
-  const { signUpWithEmail, signInWithGoogle, user, loading } = useAuthHook();
+  const { signUpWithEmail, signInWithGoogle, user, loading, isProcessingRedirect } = useAuthHook();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -70,10 +70,10 @@ export default function RegisterPage() {
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) {
+    if (user && !loading && !isProcessingRedirect) {
       router.push('/dashboard');
     }
-  }, [user, loading, router]);
+  }, [user, loading, isProcessingRedirect, router]);
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,16 +87,16 @@ export default function RegisterPage() {
     }
     setIsEmailSubmitting(true);
     await signUpWithEmail(email, password, `${firstName} ${lastName}`);
-    setIsEmailSubmitting(false);
+    // No need to set isEmailSubmitting to false, as the useEffect will redirect
   };
   
   const handleGoogleSignIn = async () => {
     setIsGoogleSubmitting(true);
     await signInWithGoogle();
-    setIsGoogleSubmitting(false);
+    // No need to set isGoogleSubmitting to false, as the page will redirect
   }
 
-  if (loading) {
+  if (loading || isProcessingRedirect || user) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />

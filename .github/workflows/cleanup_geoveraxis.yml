@@ -1,0 +1,40 @@
+name: 🔄 Monthly Cleanup & Backup - Geoveraxis
+
+on:
+  schedule:
+    - cron: "0 3 1 * *"
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - run: npm install -g firebase-tools
+      - run: npm ci
+      - run: |
+          rm -rf node_modules .next .vercel .firebase functions/node_modules functions/lib functions/.cache
+          npm cache clean --force
+          npm run build
+      - run: |
+          firebase hosting:versions:list --limit 20 --json > versions.json
+          cat versions.json | jq -r '.result[]?.versionId' | head -n -1 | while read id; do
+            firebase hosting:versions:delete $id --force || true
+          done
+      - run: |
+          firebase functions:list --json > functions.json
+          cat functions.json | jq -r '.result[]?.id' | while read fid; do
+            firebase functions:delete $fid --force || true
+          done
+      - run: |
+          firebase storage:delete /tmp --force || true
+          firebase storage:delete /builds --force || true
+      - run: |
+          tar -czf geoveraxis_backup_$(date +%Y%m%d).tar.gz .
+          firebase storage:upload geoveraxis_backup_$(date +%Y%m%d).tar.gz --path=/backups

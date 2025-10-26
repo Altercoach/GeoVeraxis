@@ -1,25 +1,4 @@
-"use client";
-
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
-export function Translator() {
-  return (
-    <Card>
-       <CardHeader>
-        <CardTitle>Translate Content</CardTitle>
-        <CardDescription>
-          Enter text, or upload a document to translate it using our legal-focused AI.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex items-center justify-center">
-          <p className="text-muted-foreground">The translator is temporarily disabled.</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-/*
-"use client";
+'use client';
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -59,20 +38,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const formSchema = z.object({
   text: z.string().optional(),
   document: z.any().optional(),
-  targetLanguage: z.string().min(1, "Target language is required."),
+  targetLanguage: z.string().min(1, "Se requiere el idioma de destino."),
 }).refine(data => !!data.text || data.document?.length === 1, {
-  message: "Either text or a document is required.",
+  message: "Se requiere texto o un documento.",
   path: ["text"],
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const languages = [
-  { value: "Spanish", label: "Spanish" },
-  { value: "English", label: "English" },
-  { value: "French", label: "French" },
-  { value: "German", label: "German" },
-  { value: "Portuguese", label: "Portuguese" },
+  { value: "Español", label: "Español" },
+  { value: "Inglés", label: "Inglés" },
+  { value: "Francés", label: "Francés" },
+  { value: "Alemán", label: "Alemán" },
+  { value: "Portugués", label: "Portugués" },
 ];
 
 export function Translator() {
@@ -84,7 +63,7 @@ export function Translator() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       text: "",
-      targetLanguage: "Spanish",
+      targetLanguage: "Español",
     },
   });
 
@@ -110,8 +89,8 @@ export function Translator() {
       } else {
         toast({
             variant: "destructive",
-            title: "Input Missing",
-            description: "Please provide either text or a document to translate.",
+            title: "Falta Entrada",
+            description: "Por favor, proporciona texto o un documento para traducir.",
         });
         setIsLoading(false);
         return;
@@ -120,8 +99,8 @@ export function Translator() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Translation Failed",
-        description: "Could not translate. Please check the file or text and try again.",
+        title: "Falló la Traducción",
+        description: "No se pudo traducir. Por favor, revisa el archivo o texto y vuelve a intentarlo.",
       });
     } finally {
       setIsLoading(false);
@@ -131,7 +110,7 @@ export function Translator() {
   const handleCopy = () => {
     if (!translatedText) return;
     navigator.clipboard.writeText(translatedText);
-    toast({ title: "Copied to clipboard!" });
+    toast({ title: "¡Copiado al portapapeles!" });
   };
 
   const handleDownload = () => {
@@ -151,9 +130,9 @@ export function Translator() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Translate Content</CardTitle>
+        <CardTitle>Traducir Contenido</CardTitle>
         <CardDescription>
-          Enter text, or upload a document to translate it using our legal-focused AI.
+          Introduce texto o sube un documento para traducirlo usando nuestra IA especializada en terminología legal.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -161,8 +140,8 @@ export function Translator() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="text" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="text">Text Input</TabsTrigger>
-                    <TabsTrigger value="document">Document Upload (OCR)</TabsTrigger>
+                    <TabsTrigger value="text">Entrada de Texto</TabsTrigger>
+                    <TabsTrigger value="document">Subir Documento (OCR)</TabsTrigger>
                 </TabsList>
                 <TabsContent value="text" className="pt-4">
                     <FormField
@@ -170,10 +149,10 @@ export function Translator() {
                         name="text"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Text to Translate</FormLabel>
+                            <FormLabel>Texto a Traducir</FormLabel>
                             <FormControl>
                             <Textarea
-                                placeholder="Enter text here..."
+                                placeholder="Introduce el texto aquí..."
                                 className="min-h-[150px]"
                                 {...field}
                             />
@@ -189,13 +168,13 @@ export function Translator() {
                         name="document"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Upload Document</FormLabel>
+                            <FormLabel>Subir Documento</FormLabel>
                             <FormControl>
                             <div className="flex items-center justify-center w-full">
                                 <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <UploadCloud className="w-8 h-8 mb-4 text-muted-foreground" />
-                                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Haz clic para subir</span> o arrastra y suelta</p>
                                         <p className="text-xs text-muted-foreground">PDF, TXT, DOCX, PNG, JPG</p>
                                     </div>
                                     <Input 
@@ -217,15 +196,15 @@ export function Translator() {
             
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <Label>Translated Text</Label>
+                    <Label>Texto Traducido</Label>
                     <div className="flex items-center gap-2">
                          <Button type="button" variant="ghost" size="icon" onClick={handleCopy} disabled={!translatedText || isLoading}>
                             <Copy className="h-4 w-4"/>
-                            <span className="sr-only">Copy</span>
+                            <span className="sr-only">Copiar</span>
                         </Button>
                         <Button type="button" variant="ghost" size="icon" onClick={handleDownload} disabled={!translatedText || isLoading}>
                             <Download className="h-4 w-4"/>
-                             <span className="sr-only">Download</span>
+                             <span className="sr-only">Descargar</span>
                         </Button>
                     </div>
                 </div>
@@ -236,7 +215,7 @@ export function Translator() {
                                 <Loader2 className="h-6 w-6 animate-spin text-primary"/>
                             </div>
                         ) : (
-                            <p className="text-sm min-h-[126px] whitespace-pre-wrap">{translatedText || 'Translation will appear here...'}</p>
+                            <p className="text-sm min-h-[126px] whitespace-pre-wrap">{translatedText || 'La traducción aparecerá aquí...'}</p>
                         )}
                     </CardContent>
                 </Card>
@@ -248,11 +227,11 @@ export function Translator() {
                 name="targetLanguage"
                 render={({ field }) => (
                   <FormItem className="w-48">
-                    <FormLabel>Target Language</FormLabel>
+                    <FormLabel>Idioma de Destino</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select language" />
+                          <SelectValue placeholder="Selecciona el idioma" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -271,12 +250,12 @@ export function Translator() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Translating...
+                    Traduciendo...
                   </>
                 ) : (
                   <>
                     <Languages className="mr-2 h-4 w-4" />
-                    Translate
+                    Traducir
                   </>
                 )}
               </Button>
@@ -287,4 +266,3 @@ export function Translator() {
     </Card>
   );
 }
-*/

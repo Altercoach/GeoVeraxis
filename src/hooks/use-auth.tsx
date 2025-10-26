@@ -3,23 +3,114 @@
 import { 
   User,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   updateProfile,
 } from 'firebase/auth';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/provider';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useToast } from './use-toast';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export const useAuthHook = () => {
   const { auth, firestore, user, loading } = useFirebase();
   const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
 
-  // This function is deprecated for the login page but kept for potential other uses.
+  const setSessionCookie = async (user: User) => {
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+      if (!response.ok) throw new Error('Failed to set session cookie');
+    } catch (error) {
+      console.error('Session cookie error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error de Sesión',
+        description: 'No se pudo iniciar la sesión del servidor. Por favor, inténtalo de nuevo.',
+      });
+      if (auth) await firebaseSignOut(auth);
+      throw error;
+    }
+  };
+
+  const clearSessionCookie = async () => {
+    try {
+      await fetch('/api/auth/session', { method: 'DELETE' });
+    } catch (error) {
+      console.error('Failed to clear session cookie:', error);
+    }
+  };
+
+  const processRedirect = useCallback(async () => {
+    if (!auth || !firestore) {
+        setIsProcessingRedirect(false);
+        return;
+    }
+
+    try {
+      const result = await getRedirectResult(auth);
+      if (result && result.user) {
+        const user = result.user;
+        const userRef = doc(firestore, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          const nameParts = user.displayName?.split(' ') || [];
+          const firstName = nameParts[0] || 'User';
+          const lastName = nameParts.slice(1).join(' ') || '';
+          
+          await setDoc(userRef, {
+            id: user.uid,
+            firstName: firstName,
+            lastName: lastName,
+            email: user.email,
+            role: "Client"
+          }, { merge: true });
+        }
+        await setSessionCookie(user);
+        toast({ title: "¡Bienvenido de nuevo!", description: "Has iniciado sesión correctamente." });
+        
+        // The main useEffect will handle the redirect now that the user state is updated.
+      }
+    } catch (error: any) {
+      console.error("Google Sign-In Redirect Error:", error);
+      toast({
+          variant: "destructive",
+          title: "Error de inicio de sesión con Google",
+          description: error.message || "No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.",
+      });
+    } finally {
+      setIsProcessingRedirect(false);
+    }
+  }, [auth, firestore, toast]);
+
+  useEffect(() => {
+    if(auth && firestore) {
+      processRedirect();
+    } else if (!loading) {
+      // If auth/firestore are null and we are not loading, it means firebase failed to initialize
+      setIsProcessingRedirect(false);
+    }
+  }, [auth, firestore, processRedirect, loading]);
+
   const signInWithGoogle = async () => {
-    // The logic is now handled directly in login-page.tsx to solve popup issues.
+    if (!auth) {
+      toast({ variant: "destructive", title: "Error de configuración", description: "El servicio de autenticación no está disponible." });
+      return;
+    }
+    const provider = new GoogleAuthProvider();
+    await signInWithRedirect(auth, provider);
   };
   
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
@@ -33,22 +124,6 @@ export const useAuthHook = () => {
         const createdUser = userCredential.user;
         await updateProfile(createdUser, { displayName });
         
-        const idToken = await createdUser.getIdToken();
-        try {
-            const response = await fetch('/api/auth/session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken }),
-            });
-            if (!response.ok) {
-                throw new Error(`Server responded with ${response.status}`);
-            }
-        } catch (sessionError) {
-            console.error("Session API Error (Sign Up):", sessionError);
-            await firebaseSignOut(auth); // Clean up client session if server session fails
-            throw sessionError; // Re-throw to be caught by the outer catch block
-        }
-
         const [firstName, ...lastNameParts] = displayName.split(' ');
         const lastName = lastNameParts.join(' ');
 
@@ -60,12 +135,13 @@ export const useAuthHook = () => {
             role: "Client"
         }, { merge: true });
 
+        await setSessionCookie(createdUser);
+        // The main useEffect will redirect.
     } catch (error: any) {
         let description = "No se pudo crear la cuenta. Inténtalo de nuevo.";
         if (error.code === 'auth/email-already-in-use') {
             description = "Este correo electrónico ya está en uso. Por favor, inicia sesión o utiliza otro correo.";
         }
-        console.error("Sign Up Error:", error);
         toast({
             variant: "destructive",
             title: "Error de registro",
@@ -82,29 +158,13 @@ export const useAuthHook = () => {
     
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const idToken = await userCredential.user.getIdToken();
-      
-      try {
-        const response = await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
-        });
-        if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}`);
-        }
-      } catch (sessionError) {
-        console.error("Session API Error (Sign In):", sessionError);
-        await firebaseSignOut(auth); // Clean up client session if server session fails
-        throw sessionError; // Re-throw to be caught by the outer catch block
-      }
-
+      await setSessionCookie(userCredential.user);
+       // The main useEffect will redirect.
     } catch (error: any) {
-        console.error("Sign In Error:", error);
         toast({
             variant: "destructive",
             title: "Error de inicio de sesión",
-            description: "Credenciales inválidas o error al crear la sesión en el servidor.",
+            description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
         });
     }
   };
@@ -114,28 +174,16 @@ export const useAuthHook = () => {
        toast({ variant: "destructive", title: "Error de configuración", description: "El servicio de autenticación no está disponible." });
       return;
     }
-    try {
-        await firebaseSignOut(auth);
-        const response = await fetch('/api/auth/session', {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}`);
-        }
-    } catch (error) {
-        console.error("Sign Out Error:", error);
-        toast({
-            variant: "destructive",
-            title: "Error al cerrar sesión",
-            description: "No se pudo cerrar la sesión correctamente en el servidor.",
-        });
-    }
+    await clearSessionCookie();
+    await firebaseSignOut(auth);
+    router.push('/login');
   };
 
   return { 
     user, 
-    loading, 
-    signInWithGoogle, // Deprecated but kept for now
+    loading: loading || isProcessingRedirect,
+    isProcessingRedirect,
+    signInWithGoogle, 
     signUpWithEmail, 
     signInWithEmail, 
     signOut 

@@ -14,14 +14,8 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useAuthHook } from "@/hooks/use-auth";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-
-// Firebase imports for redirect handling
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { useFirebase } from "@/firebase";
-import { useToast } from "@/hooks/use-toast";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
@@ -48,96 +42,37 @@ const Logo = () => (
 );
 
 export default function LoginPage() {
-  const { signInWithEmail, user, loading: authLoading } = useAuthHook();
-  const { auth, firestore } = useFirebase();
-  const { toast } = useToast();
+  const { signInWithGoogle, signInWithEmail, user, loading, isProcessingRedirect } = useAuthHook();
   const router = useRouter();
-
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
-  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true); // Start true to handle initial check
-
-  // Effect to handle redirect result on page load
+  
   useEffect(() => {
-    // Wait until Firebase is initialized
-    if (!auth || !firestore) {
-      return;
+    if (user && !loading && !isProcessingRedirect) {
+      const nextUrl = searchParams.get('next') || '/dashboard';
+      router.push(nextUrl);
     }
-
-    const processRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          const user = result.user;
-          const idToken = await user.getIdToken();
-
-          await fetch('/api/auth/session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken }),
-          });
-
-          const userRef = doc(firestore, "users", user.uid);
-          const userSnap = await getDoc(userRef);
-          if (!userSnap.exists()) {
-            const [firstName, ...lastNameParts] = user.displayName?.split(' ') || ['', ''];
-            const lastName = lastNameParts.join(' ');
-            await setDoc(userRef, {
-              id: user.uid,
-              firstName: firstName || 'User',
-              lastName: lastName || '',
-              email: user.email,
-              role: "Client"
-            }, { merge: true });
-          }
-        }
-      } catch (error: any) {
-        console.error("Redirect Result Error:", error);
-        toast({
-          variant: "destructive",
-          title: "Error de inicio de sesión",
-          description: "No se pudo procesar el inicio de sesión. Por favor, inténtalo de nuevo.",
-        });
-      } finally {
-        setIsProcessingRedirect(false);
-      }
-    };
-
-    processRedirectResult();
-
-  }, [auth, firestore, toast]);
-
-  // Effect to redirect user if already logged in
-  useEffect(() => {
-    if (!authLoading && !isProcessingRedirect && user) {
-      router.push('/dashboard');
-    }
-  }, [user, authLoading, isProcessingRedirect, router]);
+  }, [user, loading, isProcessingRedirect, router, searchParams]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsEmailSubmitting(true);
     await signInWithEmail(email, password);
-    // The hook's internal state update is not reliably triggering the redirect useEffect,
-        window.location.href = '/dashboard';    setIsEmailSubmitting(false);
+    // The hook will handle redirection on user state change.
+    setIsEmailSubmitting(false);
   };
   
   const handleGoogleSignIn = async () => {
     setIsGoogleSubmitting(true);
-    if (!auth) {
-      toast({ variant: "destructive", title: "Error", description: "Servicio de autenticación no disponible." });
-      setIsGoogleSubmitting(false);
-      return;
-    }
-    const provider = new GoogleAuthProvider();
-    await signInWithRedirect(auth, provider);
-  };
+    await signInWithGoogle();
+    // The user will be redirected, so we don't need to set isGoogleSubmitting back to false
+  }
 
-  const isLoading = authLoading || isProcessingRedirect;
-
-  if (isLoading) {
+  // Display a global loader if Firebase is initializing or if we're already logged in and about to redirect.
+  if (loading || isProcessingRedirect || user) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />

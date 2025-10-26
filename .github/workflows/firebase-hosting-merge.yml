@@ -1,6 +1,11 @@
 name: 🚀 GeoVeraxis Continuous Deploy
 
 on:
+<<<<<<< HEAD
+  push:
+    branches: [ "main" ]
+=======
+>>>>>>> e0c7b32bacf06714db868d6bad48141109326d98
   workflow_dispatch:
 
 jobs:

@@ -13,13 +13,13 @@ export async function POST(request: NextRequest) {
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
 
     const options = {
-      name: 'session', // Corrected cookie name to match middleware
+      name: 'session',
       value: sessionCookie,
       maxAge: expiresIn,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       path: '/',
-      sameSite: 'lax' as const, // Added 'as const' for stricter type checking
+      sameSite: 'lax' as const,
     };
 
     const response = NextResponse.json({ status: 'success' }, { status: 200 });
@@ -34,10 +34,9 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE() {
   try {
-    // Instruct the browser to clear the cookie
     const response = NextResponse.json({ status: 'success' }, { status: 200 });
     response.cookies.set({
-      name: 'session', // Corrected cookie name
+      name: 'session',
       value: '',
       maxAge: -1,
     });

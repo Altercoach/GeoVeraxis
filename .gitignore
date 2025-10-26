@@ -6,42 +6,22 @@
 # Testing
 /coverage
 
-# Next.js builds
+# Next.js
 /.next/
 /out/
-/dist/
-/build/
-/cache/
-/tmp/
-/logs/
 
-# Production artifacts
-*.tar.gz
-*.zip
-*.tgz
+# Production
+/build
+
+# Logs
+/logs
+/audits
 
 # Firebase
-.firebase
+.firebase/
+*.firebase.*
+*firebase.json
+*.firebaserc
 firebase-debug.log
-
-# Local Environment Variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-functions/.env
-
-# System files
-.DS_Store
-*.pem
-
-# Misc
-**/.DS_Store
-**/npm-debug.log*
-**/yarn-debug.log*
-**/yarn-error.log*
-
-# Logs & Backups
-/backupsnode_modules/
-.next/
+firebase-debug.*.log
+/backups/

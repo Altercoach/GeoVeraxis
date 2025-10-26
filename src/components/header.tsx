@@ -18,18 +18,18 @@ export function Header() {
     if (user) {
       return (
         <>
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
+          <Button asChild variant="ghost" className="hover:text-primary transition-colors text-white">
+            <Link href="/dashboard">Dashboard</Link>
+          </Button>
           <Button onClick={signOut} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">Cerrar Sesión</Button>
         </>
       );
     }
 
     return (
-      <Link href="/login" legacyBehavior>
-        <a className={buttonVariants({ variant: 'default', className: 'bg-primary hover:bg-primary-dark text-white' })}>
-          Iniciar Sesión
-        </a>
-      </Link>
+      <Button asChild variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900">
+        <Link href="/login">Iniciar Sesión</Link>
+      </Button>
     );
   };
   
@@ -41,18 +41,18 @@ export function Header() {
     if (user) {
         return (
             <>
-                <Link href="/dashboard" className="hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                <Button asChild variant="ghost" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
+                </Button>
                 <Button onClick={() => { signOut(); setIsMenuOpen(false); }} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">Cerrar Sesión</Button>
             </>
         );
     }
 
     return (
-        <Link href="/login" legacyBehavior>
-            <a onClick={() => setIsMenuOpen(false)} className={buttonVariants({ variant: 'default', className: 'bg-primary hover:bg-primary-dark text-white' })}>
-                Iniciar Sesión
-            </a>
-        </Link>
+      <Button asChild className="bg-primary hover:bg-primary-dark text-white">
+        <Link href="/login" onClick={() => setIsMenuOpen(false)}>Iniciar Sesión</Link>
+      </Button>
     );
   };
 
@@ -77,7 +77,7 @@ export function Header() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden mt-4">
-          <nav className="flex flex-col space-y-4 items-center">
+           <nav className="flex flex-col space-y-4 items-center">
             <Link href="/#features" className="hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>Características</Link>
             <Link href="/#testimonials" className="hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>Testimonios</Link>
             <Link href="/#faq" className="hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>FAQ</Link>

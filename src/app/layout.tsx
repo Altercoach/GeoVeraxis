@@ -1,11 +1,8 @@
 
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
-import { AdminProvider } from "@/hooks/use-admin";
-import { FirebaseClientProvider } from "@/firebase/client-provider";
+import { AppProvider } from "@/components/app-provider";
+import type { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,19 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <FirebaseClientProvider>
-            <AdminProvider>
-              {children}
-            </AdminProvider>
-          </FirebaseClientProvider>
-          <Toaster />
-        </ThemeProvider>
+        <AppProvider>{children}</AppProvider>
       </body>
     </html>
   );

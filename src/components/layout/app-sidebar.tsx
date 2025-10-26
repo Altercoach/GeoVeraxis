@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Sidebar,
@@ -21,6 +21,7 @@ import {
   Settings,
   Shield,
   Map,
+  FileCode,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -43,6 +44,7 @@ const navItems = [
 
 const adminNavItems = [
     { href: "/dashboard/admin", icon: Shield, label: "Admin Panel" },
+    { href: "/dashboard/command-center", icon: FileCode, label: "Command Center" },
 ];
 
 const settingsItems = [

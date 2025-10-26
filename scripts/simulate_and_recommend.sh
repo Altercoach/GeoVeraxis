@@ -8,7 +8,11 @@ cat > "$OUT" <<JSON
   "timestamp": "$(date --iso-8601=seconds)",
   "rps": $(( (RANDOM % 400) + 50 )),
   "latency_ms": $(( (RANDOM % 400) + 20 )),
+<<<<<<< HEAD
+  "error_rate": "$(awk -v r=$((RANDOM%10)) 'BEGIN{printf "%.2f", r/100}')",
+=======
   "error_rate": "$(awk -v r=$((RANDOM%10)) 'BEGIN{printf \"%.2f\", r/100}')",
+>>>>>>> e0c7b32bacf06714db868d6bad48141109326d98
   "trust_score": $(( (RANDOM % 40) + 60 ))
 }
 JSON
@@ -44,12 +48,26 @@ min_instances=1; max_instances=10
 recommended=$(awk -v comp="$composite" -v min="$min_instances" -v max="$max_instances" 'BEGIN{print int(min + (max-min)*comp)}')
 if [ "$recommended" -lt "$min_instances" ]; then recommended=$min_instances; fi
 
+<<<<<<< HEAD
+action_suggested="noop"
+if awk -v comp="$composite" 'BEGIN { exit !(comp > 0.75) }'; then
+    action_suggested="scale_up"
+elif awk -v comp="$composite" 'BEGIN { exit !(comp < 0.30) }'; then
+    action_suggested="scale_down"
+fi
+
+=======
+>>>>>>> e0c7b32bacf06714db868d6bad48141109326d98
 cat > metrics/recommendation_$(date +%s).json <<JSON
 {
   "timestamp": "$(date --iso-8601=seconds)",
   "composite_score": $composite,
   "recommended_instances": $recommended,
+<<<<<<< HEAD
+  "action_suggested": "$action_suggested"
+=======
   "action_suggested": "$( [ $(echo "$composite > 0.75" | bc -l) -eq 1 ] && echo "scale_up" || ( [ $(echo "$composite < 0.30" | bc -l) -eq 1 ] && echo "scale_down" || echo "noop") )"
+>>>>>>> e0c7b32bacf06714db868d6bad48141109326d98
 }
 JSON
 
