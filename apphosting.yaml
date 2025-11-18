@@ -7,17 +7,17 @@ runConfig:
   memoryMiB: 512
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: "AIzaSyBiNVa0Tp1hx23Lj91dUBIslFy0aQyMFgs"
+    value: "AIzaSyAPHFsnKjgwVkycMWvewuywWjxR9oy0F6E"
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: "studio-2247565261-d6475.firebaseapp.com"
+    value: "geoveraxis-app.firebaseapp.com"
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: "studio-2247565261-d6475"
+    value: "geoveraxis-app"
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: "studio-2247565261-d6475.appspot.com"
+    value: "geoveraxis-app.appspot.com"
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: "572662000625"
+    value: "366282676614"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    value: "1:572662000625:web:74433453ecd3754eebb250"
+    value: "1:366282676614:web:555252a7d8028d61767407"
 managedBy: "gemini"
 auth:
   serviceAccount: "firebase-app-hosting-api@system.gserviceaccount.com"
