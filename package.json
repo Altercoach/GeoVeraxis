@@ -13,7 +13,6 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
-    "prepare": "test -n \"$CI\" || husky",
     "precommit": "lint-staged"
   },
   "lint-staged": {
