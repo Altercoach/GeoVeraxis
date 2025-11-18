@@ -1,27 +1,29 @@
-# Dependencies
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
 /node_modules
-/.pnp
-.pnp.js
 
-# Testing
-/coverage
+# misc
+.DS_Store
+*.pem
 
-# Next.js
-/.next/
-/out/
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Production
-/build
+# local env files
+.env.local
 
-# Logs
-/logs
-/audits
+# vercel
+.vercel
 
-# Firebase
-.firebase/
-*.firebase.*
-*firebase.json
-*.firebaserc
-firebase-debug.log
-firebase-debug.*.log
-/backups/
+# next.js
+.next/
+out/
+
+# build output
+build
+
+# package-lock.json
+package-lock.json
