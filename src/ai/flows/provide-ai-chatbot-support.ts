@@ -1,7 +1,7 @@
 'use server';
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
 export const ProvideAiChatbotSupportInput = z.object({
   query: z.string().describe('The user\'s query.'),
@@ -20,8 +20,8 @@ export type ProvideAiChatbotSupportOutput = z.infer<
 const prompt = ai.definePrompt(
   {
     name: 'provideAiChatbotSupportPrompt',
-    input: { schema: ProvideAiChatbotSupportInput },
-    output: { schema: ProvideAiChatbotSupportOutput },
+    inputSchema: ProvideAiChatbotSupportInput,
+    outputSchema: ProvideAiChatbotSupportOutput,
     prompt: `Eres un asistente de IA para GeoVeraxis, una plataforma avanzada para la gestión de documentos notariales geoespaciales.
 
 Tu tarea es responder a la consulta del usuario de manera clara, concisa y útil. Sé un experto en la plataforma GeoVeraxis, procesos legales, terminología catastral y gestión de cuentas.

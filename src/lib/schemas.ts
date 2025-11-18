@@ -4,7 +4,7 @@ export const clientSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string().email(),
-  role: z.enum(["Superadmin", "Client", "Notary", "PublicRegistrar"]),
+  role: z.enum(["Superadmin", "Client", "Notary", "PublicRegistrar", "User", "Admin", "Certifier", "Appraiser", "Validator"]),
   status: z.enum(["Active", "Paused", "Suspended", "Canceled"]),
   plan: z.enum(["Basic", "Pro", "Enterprise", "Government"]),
 });

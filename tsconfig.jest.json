@@ -1,6 +1,13 @@
+
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "jsx": "react-jsx"
-  }
+    "jsx": "react-jsx",
+    "types": ["jest", "@testing-library/jest-dom"]
+  },
+  "include": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/components/ui/__tests__/button.test.tsx"
+  ]
 }

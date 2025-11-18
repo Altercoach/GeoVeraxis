@@ -1,7 +1,7 @@
 'use server';
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
 export const VerifyLegalDocumentInput = z.object({
   documentDataUri: z
@@ -56,8 +56,8 @@ export type VerifyLegalDocumentOutput = z.infer<
 
 const prompt = ai.definePrompt({
   name: 'verifyLegalDocumentPrompt',
-  input: { schema: VerifyLegalDocumentInput },
-  output: { schema: VerifyLegalDocumentOutput },
+  inputSchema: VerifyLegalDocumentInput,
+  outputSchema: VerifyLegalDocumentOutput,
   prompt: `Eres un experto en análisis forense de documentos legales para GeoVeraxis. Tu tarea es analizar el siguiente documento en busca de autenticidad, integridad y señales de fraude.
 
 Contexto del usuario:

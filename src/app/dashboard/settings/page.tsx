@@ -25,24 +25,24 @@ export default function SettingsPage() {
           <TabsTrigger value="blockchain">Blockchain</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
+
         <TabsContent value="profile">
           <Card>
             <CardHeader>
               <CardTitle>Company Profile</CardTitle>
               <CardDescription>
-<<<<<<< HEAD
-                Manage your organization's information.
-=======
                 Manage your organization&apos;s information.
->>>>>>> e0c7b32bacf06714db868d6bad48141109326d98
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-muted-foreground">Profile settings will be available here.</p>
+              <p className="text-muted-foreground">
+                Profile settings will be available here.
+              </p>
               <Button>Save Changes</Button>
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="users">
           <Card>
             <CardHeader>
@@ -52,11 +52,14 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-               <p className="text-muted-foreground">User management settings will be available here.</p>
+              <p className="text-muted-foreground">
+                User management settings will be available here.
+              </p>
               <Button>Save Changes</Button>
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="integrations">
           <Card>
             <CardHeader>
@@ -66,11 +69,14 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-               <p className="text-muted-foreground">Integration settings will be available here.</p>
+              <p className="text-muted-foreground">
+                Integration settings will be available here.
+              </p>
               <Button>Save Changes</Button>
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="blockchain">
           <Card>
             <CardHeader>
@@ -80,21 +86,26 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-               <p className="text-muted-foreground">Blockchain settings will be available here.</p>
+              <p className="text-muted-foreground">
+                Blockchain configuration will be available here.
+              </p>
               <Button>Save Changes</Button>
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="security">
           <Card>
             <CardHeader>
-              <CardTitle>Security</CardTitle>
+              <CardTitle>Security Settings</CardTitle>
               <CardDescription>
-                Manage 2FA, IP whitelisting, and other security features.
+                Manage authentication, 2FA, and encryption options.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-               <p className="text-muted-foreground">Security settings will be available here.</p>
+              <p className="text-muted-foreground">
+                Security settings will be available here.
+              </p>
               <Button>Save Changes</Button>
             </CardContent>
           </Card>

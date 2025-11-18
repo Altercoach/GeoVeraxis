@@ -1,7 +1,7 @@
 'use server';
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
 export const TranslatePlatformContentInput = z.object({
   text: z.string().optional().describe('The text to translate.'),
@@ -31,8 +31,8 @@ export type TranslatePlatformContentOutput = z.infer<
 const prompt = ai.definePrompt(
   {
     name: 'translatePlatformContentPrompt',
-    input: { schema: TranslatePlatformContentInput },
-    output: { schema: TranslatePlatformContentOutput },
+    inputSchema: TranslatePlatformContentInput,
+    outputSchema: TranslatePlatformContentOutput,
     prompt: `Eres un traductor experto especializado en terminología legal, notarial y catastral. Tu tarea es traducir el siguiente contenido al {{targetLanguage}} con la mayor precisión posible.
 
 Si se proporciona un documento, extrae el texto de él y tradúcelo. Si se proporciona texto, tradúcelo directamente.

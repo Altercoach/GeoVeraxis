@@ -1,44 +1,45 @@
-import * as functions from "firebase-functions";
+import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 import * as tar from "tar";
 import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 
-admin.initializeApp();
+// Asegurarse de que la app de admin se inicializa solo una vez.
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
-export const weeklyBackup = functions.pubsub
-  .schedule("every sunday 03:00")
-  .timeZone("America/Mexico_City")
-  .onRun(async () => {
+export const weeklyBackup = onSchedule("every sunday 03:00", async () => {
     const fileName = `geoveraxis_backup_${Date.now()}.tar.gz`;
-    const filePath = `/tmp/${fileName}`;
-    const sourceDir = process.cwd(); // Directorio de la función
+    const tempFilePath = path.join(os.tmpdir(), fileName);
+    const sourceDir = process.cwd();
 
     try {
-      // Crear un stream de escritura para el archivo tar.gz
-      const writeStream = fs.createWriteStream(filePath);
-
-      // Usar el paquete tar para comprimir el directorio
+      // Crear un stream de escritura para el archivo tar.gz en el directorio temporal
       await tar.c(
         {
           gzip: true,
-          file: filePath,
+          file: tempFilePath,
           cwd: sourceDir,
         },
-        ['.'] // Comprimir el directorio actual
+        ['.'] // Comprimir el directorio actual de la función
       );
 
+      console.log(`Backup temporal creado en: ${tempFilePath}`);
+
       const bucket = admin.storage().bucket();
-      await bucket.upload(filePath, { destination: `backups/${fileName}` });
+      await bucket.upload(tempFilePath, { destination: `backups/${fileName}` });
       
-      fs.unlinkSync(filePath);
+      // Eliminar el archivo temporal después de subirlo
+      fs.unlinkSync(tempFilePath);
       
-      console.log("✅ Backup semanal creado y subido a /backups/");
+      console.log(`✅ Backup semanal '${fileName}' creado y subido a /backups/`);
 
     } catch (error) {
       console.error("❌ Error creando el backup semanal:", error);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      if (fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
       }
     }
-    return null;
-  });
+});

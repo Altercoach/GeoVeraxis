@@ -1,13 +1,11 @@
 
 runConfig:
-  maxInstances: 10
-  concurrency: 80
-  automaticScaling:
-    targetCPUUtilization: 0.65
-  runtime: nodejs22
+  minInstances: 0
+  maxInstances: 100
+  concurrency: 1000
+  cpu: 1
+  memoryMiB: 512
 env:
-  - variable: NODE_ENV
-    value: "production"
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: "AIzaSyBiNVa0Tp1hx23Lj91dUBIslFy0aQyMFgs"
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
@@ -20,9 +18,9 @@ env:
     value: "572662000625"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:572662000625:web:74433453ecd3754eebb250"
-  - variable: FIREBASE_PROJECT_ID
-    value: "studio-2247565261-d6475"
-  - variable: FIREBASE_CLIENT_EMAIL
-    value: "firebase-adminsdk-fbsvc@studio-2247565261-d6475.iam.gserviceaccount.com"
-  - variable: FIREBASE_PRIVATE_KEY
-    value: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCcf5Df8we6RAOe\ntxE2BA9Jj6GTRIH3nYJKajKRtV4W5fSJjUSdqzLKFrim8Wrwb4ssKsc1bPFA2gRa\nuGGaj6cSeiMKc0YW2lS81lY3bsEf8LmC9diAM3n3whQQQvv/4PVRNt4Q9S5yNu5r\nVhhXd1L9i0d5Rei3T6K2nVg+ecnUrryBCh6nys+ef+qV6Xxwm5eeH0sk20CrJ2se\nqZhvNi1GqLU3K+KrBprgIGeiiSOBns2AUwZTtlp+1rzMGJ37I7y5LKAs5txBt/Io\nIaKUw0kV/JaMDmqWht1kZYKyN15bfAhNblfBLqYFmeb5O7PVbOsLvv9GSqLM+s4L\ntz5YEvjlAgMBAAECggEAES6LPh8tV8SsXhJMzDClagbgLy48E67CFX/z1d4C+sIb\n9zcgk6vuW1QjyUZjnoqsjbiTnvi7Qwq8pCYupxzC88sfij/uL8egOoxQsmzRPLu9\n7lQmBStBppMzBzcHekgdPuGmf1ef1g/UXMn6ya2S2b3fJsAnZOrUGzcKr29JGrW5\nVdFOnDjBDrEgNjBQoWaHtezLYsgSv5JMnKjfc3oS4ZXmE4AkfsFetdGdWw7eGY8f\nokYHQMTMKUDJVUqpL+q1DlY/qX1DCa5iz91vN3TTIw9Km1uBtO1K6Snjg+w5rmMl\noOnt1ugyVo7VMb+RFF1tB2R1JKJvvc0Nj+hxmt50KQKBgQDdRgY+EoqsmuwUoz/z\n9IyowysWUB9D1PM1GREFDtJIcJbrSXtBkp1Ymrh+t6+tc01zcDSUvLi9gOht6WGt\nlD6wayukY6NWVXzzjN6OuJYwSa+gF+Ebft/IkqPS8qP0jKTlNk0PndG2D/m9yk+u\nMFHGoi5nbDH1TWPqOho060p27QKBgQC1DxsGJQDnJTFyA1R/LpIFHtaqKvz9TZHk\nmch/J7rPQsDinXFMe7C6vm8nIUuTRNf1TES1QCP2BtGQ7ShCT5ysIg2LAEfRfqHI\nWTNm8OP8z3OxheZzdyWUVg4xXpQu9xPVlpJw1mU6OL1IP/I1xJxuahA7Tr+QyVxn\nIixLmYWS2QKBgBDlI9zhdY0wVw5MWLm71nGcVVHi1EBNpjRLsaz9MLkvP5a/iZW8\nKB930NZ8GAHaZ/OEgb9JmaF+kkCyLS8fvpmh1Tc8FGCnLl86RlQHbBBL0AkdSabb\nzSJ3b+LPfA1UH9MQjlm+5yBLn/oJ1IOsVNIh2AE1larxOcvMm+ume40RAoGAN7DD\nwSoUkwRPpx/7F3t9knGf2YuLcWYwn73le6b+wM1pgsqmlL3e6DG3ArQtCMk+G8cv\nwwhNh1klkIxBu9O8/v0iaUTW0ks++97j/p/NoG82yL3E2nMlbfDiQLE0pxV8VlAQ\nDwEC9duJ7PUuTPeCnjulbniUV7Z344kRUtePzFECgYALkXhHvBUF70lL9vkRsZZ7\nYwmvNubCFVMWitT7CLUrgh3exlbTJmHycFhughh5S3j3wqUkqxBQi6U1h4YuFZ2G\nkXPKsFSZPAToQ+WbkrWsWSA9yl498wvZZ0hkWgsuGG1efS0+gcOovDcdLreHD3Sy\nJv0B+66+ayq+2o1ySGf19g==\n-----END PRIVATE KEY-----"
+  - variable: FIREBASE_SERVICE_ACCOUNT_JSON
+    secret: FIREBASE_SERVICE_ACCOUNT_JSON
+managedBy: "gemini"
+auth:
+  serviceAccount: "firebase-app-hosting-api@system.gserviceaccount.com"
+  enabled: true
